@@ -1,3 +1,5 @@
+<p align="center"><img src="https://img.shields.io/badge/-Cognivyn-7C3AED?style=for-the-badge" alt="Cognivyn"></p>
+
 # env-twin: Seamlessly Synchronize Your Node.js Environment Configurations
 
 **env-twin** is the ultimate CLI tool to keep your environment variable configurations perfectly synchronized across all `.env*` files in your Node.js projects. Designed to unify environment variable keys, securely sanitize sensitive data in example files, and maintain consistency throughout your development lifecycle, env-twin enhances your workflow with robust features and easy integration.
@@ -153,3 +155,4 @@ Please refer to the original README content provided above for comprehensive com
 ---
 
 Optimize your Node.js environment configuration management with **env-twin** — the smart, reliable, and secure way to handle `.env` files.
+
