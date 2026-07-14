@@ -1,0 +1,25 @@
+# env-twin
+
+env-twin is a zero-runtime-dependency TypeScript/ESM CLI that synchronizes
+environment-variable keys across `.env*` files while preserving formatting and
+protecting example files from real secret values.
+
+## Agent quick reference
+
+- Install: `bun install --frozen-lockfile`
+- Build: `bun run build`
+- Test: `bun test`
+- CLI help: `bun dist/index.js --help`
+- Version: `bun dist/index.js --version`
+- Package check: `npm pack --dry-run`
+- Commands: `sync`, `restore [timestamp]`, `clean-backups`
+- Automation: use `--yes`; use `--json` where supported.
+
+## Safety contract
+
+Sync creates timestamped backups unless `--no-backup` is supplied. Existing
+values are preserved; missing keys are added. Never expose or commit `.env`
+contents, backups, or credentials. Test filesystem changes in a temporary
+directory.
+
+Behavior is defined by `src/index.ts`, `src/commands/`, and `src/modules/`.
