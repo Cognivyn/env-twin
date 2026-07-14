@@ -16,6 +16,7 @@ protecting example files from real secret values.
 - Automation: use `--yes`; use `--json` where supported.
 - `compare --json` emits a redacted, deterministic report containing key names and drift metadata, never values.
 - `compare --check` exits 1 when drift is detected and 0 when files are aligned.
+- `init` creates a sanitized `.env.example`; replacing an existing file requires `--yes` or `--force`, and `--dry-run` performs no writes.
 
 ## Safety contract
 

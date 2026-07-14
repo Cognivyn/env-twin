@@ -204,6 +204,7 @@ function printUsage() {
 Usage: env-twin [command] [options]
 
 Commands:
+  init                  Create a sanitized .env.example template
   compare               Compare .env* files without modifying them
   sync                  Synchronize environment variable keys across all .env* files
   restore [timestamp]   Restore .env* files from a backup (auto-selects most recent if no timestamp)
@@ -243,6 +244,23 @@ Options:
   --source, --src       Source-of-truth file
   --json                Output a redacted, machine-readable report
   --check               Exit with code 1 when drift is detected
+  --help, -h            Display this help message
+`);
+}
+
+function printInitUsage() {
+  console.log(`
+Usage: env-twin init [options]
+
+Create or replace a sanitized .env.example template.
+
+Options:
+  --source, --src       Source .env file (default: .env)
+  --dest, --destination Destination file (default: .env.example)
+  --yes, -y             Replace an existing destination without prompting
+  --force, -f           Replace an existing destination
+  --dry-run             Report the planned result without writing
+  --json                Output redacted machine-readable metadata
   --help, -h            Display this help message
 `);
 }
@@ -433,6 +451,8 @@ try {
       printSyncUsage();
     } else if (command === "compare") {
       printCompareUsage();
+    } else if (command === "init") {
+      printInitUsage();
     } else if (command === "restore") {
       printRestoreUsage();
     } else if (command === "clean-backups") {
@@ -459,6 +479,9 @@ try {
       json: options.json,
       source: options.source,
     });
+  } else if (command === "init") {
+    const { runInit } = await import("./commands/init.js");
+    runInit({ source: options.source, destination: options.dest, yes: options.yes, force: options.force, dryRun: options.dryRun, json: options.json });
   } else if (command === "compare") {
     const { runCompare } = await import("./commands/compare.js");
     process.exitCode = runCompare({ source: options.source, json: options.json, check: options.check });
