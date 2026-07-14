@@ -39,6 +39,7 @@ export async function executeSyncActions(params: ExecuteParams): Promise<void> {
     }
   }
 
+  let failedFiles = 0;
   for (const [fileName, fileActions] of groupActionsByFile(actions)) {
     const filePath = path.join(cwd, fileName);
     const originalFile = report.files.find(file => file.fileName === fileName);
@@ -61,6 +62,7 @@ export async function executeSyncActions(params: ExecuteParams): Promise<void> {
       writeAtomic(filePath, newContent, { mode: readMode(filePath) });
       console.log(colors.green(`✓ Updated ${fileName}`));
     } catch (error) {
+      failedFiles++;
       console.error(
         colors.red(`Failed to update ${fileName}:`),
         error instanceof Error ? error.message : String(error)
@@ -68,6 +70,9 @@ export async function executeSyncActions(params: ExecuteParams): Promise<void> {
     }
   }
 
+  if (failedFiles > 0) {
+    throw new Error(`Failed to update ${failedFiles} file(s)`);
+  }
   console.log('');
   console.log(colors.green('Sync completed successfully!'));
 }

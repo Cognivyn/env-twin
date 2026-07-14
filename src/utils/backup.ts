@@ -68,6 +68,9 @@ export function createBackup(filePath: string, cwd: string): boolean {
     if (!fs.existsSync(filePath)) {
       return false;
     }
+    if (!fs.lstatSync(filePath).isFile()) {
+      return false;
+    }
 
     if (!ensureBackupDir(cwd)) {
       return false;
@@ -99,6 +102,10 @@ export function createBackups(filePaths: string[], cwd: string): string | null {
 
   for (const filePath of filePaths) {
     if (!fs.existsSync(filePath)) {
+      continue;
+    }
+    if (!fs.lstatSync(filePath).isFile()) {
+      console.error(`Warning: Skipping non-regular file ${path.basename(filePath)}`);
       continue;
     }
 
@@ -141,6 +148,7 @@ export function listBackups(cwd: string): BackupInfo[] {
 
       const timestamp = match[2];
       const filePath = path.join(backupPath, file);
+      if (!fs.lstatSync(filePath).isFile()) continue;
       const stats = fs.statSync(filePath);
 
       if (!backupsByTimestamp.has(timestamp)) {
