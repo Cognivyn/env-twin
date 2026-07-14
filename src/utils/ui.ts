@@ -1,10 +1,10 @@
-import readline from 'readline';
+import readline from "readline";
 
 // ============================================================================
 // COLORS
 // ============================================================================
 
-const ESC = '\x1b[';
+const ESC = "\x1b[";
 const RESET = `${ESC}0m`;
 
 export const colors = {
@@ -31,22 +31,22 @@ export interface Choice {
  * Basic confirmation prompt (Yes/No)
  */
 export function confirm(message: string, initial: boolean = true): Promise<boolean> {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
     });
 
-    const defaultText = initial ? 'Y/n' : 'y/N';
+    const defaultText = initial ? "Y/n" : "y/N";
     const query = `${colors.bold(message)} ${colors.dim(`(${defaultText})`)} `;
 
-    rl.question(query, answer => {
+    rl.question(query, (answer) => {
       rl.close();
       const input = answer.trim().toLowerCase();
-      if (input === '') {
+      if (input === "") {
         resolve(initial);
       } else {
-        resolve(input === 'y' || input === 'yes');
+        resolve(input === "y" || input === "yes");
       }
     });
   });
@@ -58,7 +58,7 @@ export function confirm(message: string, initial: boolean = true): Promise<boole
  * Implementing a full arrow-key menu without deps is complex; this is a robust fallback.
  */
 export function select<T>(message: string, choices: Choice[]): Promise<T> {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
@@ -70,13 +70,13 @@ export function select<T>(message: string, choices: Choice[]): Promise<T> {
     });
 
     const ask = () => {
-      rl.question(`\n${colors.bold('Select an option (1-' + choices.length + '):')} `, answer => {
+      rl.question(`\n${colors.bold("Select an option (1-" + choices.length + "):")} `, (answer) => {
         const num = parseInt(answer.trim(), 10);
         if (!isNaN(num) && num >= 1 && num <= choices.length) {
           rl.close();
           resolve(choices[num - 1].value);
         } else {
-          console.log(colors.red('Invalid selection. Please try again.'));
+          console.log(colors.red("Invalid selection. Please try again."));
           ask();
         }
       });

@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
 // ============================================================================
 // TYPES
@@ -22,8 +22,8 @@ export interface GitignoreResult {
 // CONSTANTS
 // ============================================================================
 
-export const BACKUP_DIR_PATTERN = '.env-twin/';
-export const GITIGNORE_FILE = '.gitignore';
+export const BACKUP_DIR_PATTERN = ".env-twin/";
+export const GITIGNORE_FILE = ".gitignore";
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -38,11 +38,11 @@ function readGitignoreFile(cwd: string): string[] {
     if (!fs.existsSync(gitignorePath)) {
       return [];
     }
-    const content = fs.readFileSync(gitignorePath, 'utf-8');
-    return content.split('\n');
+    const content = fs.readFileSync(gitignorePath, "utf-8");
+    return content.split("\n");
   } catch (error) {
     console.error(
-      `Warning: Failed to read ${GITIGNORE_FILE}: ${error instanceof Error ? error.message : String(error)}`
+      `Warning: Failed to read ${GITIGNORE_FILE}: ${error instanceof Error ? error.message : String(error)}`,
     );
     return [];
   }
@@ -54,11 +54,11 @@ function readGitignoreFile(cwd: string): string[] {
 function writeGitignoreFile(cwd: string, content: string): boolean {
   const gitignorePath = path.join(cwd, GITIGNORE_FILE);
   try {
-    fs.writeFileSync(gitignorePath, content, 'utf-8');
+    fs.writeFileSync(gitignorePath, content, "utf-8");
     return true;
   } catch (error) {
     console.error(
-      `Warning: Failed to write ${GITIGNORE_FILE}: ${error instanceof Error ? error.message : String(error)}`
+      `Warning: Failed to write ${GITIGNORE_FILE}: ${error instanceof Error ? error.message : String(error)}`,
     );
     return false;
   }
@@ -68,9 +68,9 @@ function writeGitignoreFile(cwd: string, content: string): boolean {
  * Check if a pattern is already in the .gitignore file
  */
 function isPatternInGitignore(lines: string[], pattern: string): boolean {
-  return lines.some(line => {
+  return lines.some((line) => {
     const trimmed = line.trim();
-    return trimmed === pattern && !trimmed.startsWith('#');
+    return trimmed === pattern && !trimmed.startsWith("#");
   });
 }
 
@@ -80,7 +80,7 @@ function isPatternInGitignore(lines: string[], pattern: string): boolean {
 export function ensureGitignoreEntry(
   cwd: string,
   pattern: string,
-  comment?: string
+  comment?: string,
 ): GitignoreResult {
   const lines = readGitignoreFile(cwd);
 
@@ -98,13 +98,13 @@ export function ensureGitignoreEntry(
   const newLines = [...lines];
 
   // Remove trailing empty lines
-  while (newLines.length > 0 && newLines[newLines.length - 1].trim() === '') {
+  while (newLines.length > 0 && newLines[newLines.length - 1].trim() === "") {
     newLines.pop();
   }
 
   // Add empty line if file has content
   if (newLines.length > 0) {
-    newLines.push('');
+    newLines.push("");
   }
 
   // Add comment if provided
@@ -116,8 +116,8 @@ export function ensureGitignoreEntry(
   newLines.push(pattern);
 
   // Ensure file ends with newline
-  const content = newLines.join('\n');
-  const contentWithNewline = content.endsWith('\n') ? content : content + '\n';
+  const content = newLines.join("\n");
+  const contentWithNewline = content.endsWith("\n") ? content : content + "\n";
 
   if (writeGitignoreFile(cwd, contentWithNewline)) {
     return {
@@ -140,7 +140,7 @@ export function ensureGitignoreEntry(
  * Ensure the backup directory is added to .gitignore
  */
 export function ensureBackupDirInGitignore(cwd: string): GitignoreResult {
-  return ensureGitignoreEntry(cwd, BACKUP_DIR_PATTERN, 'env-twin backup directory');
+  return ensureGitignoreEntry(cwd, BACKUP_DIR_PATTERN, "env-twin backup directory");
 }
 
 /**
@@ -156,13 +156,13 @@ export function getGitignoreEntries(cwd: string): GitignoreEntry[] {
     const trimmed = line.trim();
 
     // Skip empty lines
-    if (trimmed === '') {
+    if (trimmed === "") {
       currentComment = undefined;
       continue;
     }
 
     // Handle comments
-    if (trimmed.startsWith('#')) {
+    if (trimmed.startsWith("#")) {
       currentComment = trimmed.substring(1).trim();
       continue;
     }

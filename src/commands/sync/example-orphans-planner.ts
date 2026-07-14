@@ -1,6 +1,6 @@
-import { EnvAnalysisReport, EnvFileAnalysis } from '../../modules/sync-logic.js';
-import { colors } from '../../utils/ui.js';
-import { PendingAction, PromptApi } from './types.js';
+import { EnvAnalysisReport, EnvFileAnalysis } from "../../modules/sync-logic.js";
+import { colors } from "../../utils/ui.js";
+import { PendingAction, PromptApi } from "./types.js";
 
 interface ExamplePlannerParams {
   report: EnvAnalysisReport;
@@ -10,10 +10,10 @@ interface ExamplePlannerParams {
 }
 
 export async function planExampleAndOrphanActions(
-  params: ExamplePlannerParams
+  params: ExamplePlannerParams,
 ): Promise<PendingAction[]> {
   const { report } = params;
-  const exampleFile = report.files.find(file => file.fileName === '.env.example');
+  const exampleFile = report.files.find((file) => file.fileName === ".env.example");
 
   if (!exampleFile) {
     return maybeCreateExampleActions(params);
@@ -36,18 +36,18 @@ async function maybeCreateExampleActions({
 
   let shouldCreate = Boolean(yes);
   if (!yes) {
-    console.log(colors.yellow('No .env.example file found.'));
+    console.log(colors.yellow("No .env.example file found."));
     shouldCreate = await prompts.confirm(
-      'Do you want to create .env.example with all found keys?',
-      true
+      "Do you want to create .env.example with all found keys?",
+      true,
     );
   }
 
   if (!shouldCreate) return [];
-  return allKeys.map(key => ({
-    file: '.env.example',
+  return allKeys.map((key) => ({
+    file: ".env.example",
     key,
-    action: 'add' as const,
+    action: "add" as const,
     value: `input_${EnvFileAnalysis.sanitizeKey(key)}`,
   }));
 }
@@ -57,23 +57,23 @@ async function maybeCreatePromotionActions({
   sourceOfTruth,
   prompts,
 }: ExamplePlannerParams): Promise<PendingAction[]> {
-  const sourceFile = report.files.find(file => file.fileName === sourceOfTruth);
+  const sourceFile = report.files.find((file) => file.fileName === sourceOfTruth);
   if (!sourceFile) return [];
 
   const actions: PendingAction[] = [];
   for (const [fileName, orphans] of Object.entries(report.orphanKeys)) {
-    const promotions = orphans.filter(key => !sourceFile.keys.has(key));
+    const promotions = orphans.filter((key) => !sourceFile.keys.has(key));
     if (!promotions.length) continue;
 
     console.log(
       colors.yellow(
-        `Found ${promotions.length} keys in ${fileName} that are missing in ${sourceOfTruth}:`
-      )
+        `Found ${promotions.length} keys in ${fileName} that are missing in ${sourceOfTruth}:`,
+      ),
     );
 
     const shouldPromote = await prompts.confirm(
       `Do you want to add these keys to ${sourceOfTruth}?`,
-      false
+      false,
     );
     if (!shouldPromote) continue;
 
@@ -81,7 +81,7 @@ async function maybeCreatePromotionActions({
       actions.push({
         file: sourceOfTruth,
         key,
-        action: 'add',
+        action: "add",
         value: `input_${EnvFileAnalysis.sanitizeKey(key)}`,
       });
     }

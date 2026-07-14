@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
 export interface AtomicWriteOptions {
   mode?: number;
@@ -15,16 +15,16 @@ export interface AtomicWriteOptions {
 export function writeAtomic(
   filePath: string,
   content: string | NodeJS.ArrayBufferView,
-  options: AtomicWriteOptions = {}
+  options: AtomicWriteOptions = {},
 ): void {
   const dir = path.dirname(filePath);
   const fileName = path.basename(filePath);
   const tempPath = path.join(dir, `.${fileName}.${Date.now()}.tmp`);
-  const { mode, encoding = 'utf-8' } = options;
+  const { mode, encoding = "utf-8" } = options;
   let tempCreated = false;
 
   try {
-    if (typeof content === 'string') {
+    if (typeof content === "string") {
       fs.writeFileSync(tempPath, content, { encoding: encoding as BufferEncoding, mode });
     } else {
       fs.writeFileSync(tempPath, content, { mode });
@@ -34,7 +34,7 @@ export function writeAtomic(
     try {
       fs.renameSync(tempPath, filePath);
     } catch (renameError: any) {
-      if (process.platform === 'win32' && renameError.code === 'EPERM') {
+      if (process.platform === "win32" && renameError.code === "EPERM") {
         if (fs.existsSync(filePath)) {
           fs.unlinkSync(filePath);
         }

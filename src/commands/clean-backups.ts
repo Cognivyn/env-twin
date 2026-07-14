@@ -1,6 +1,6 @@
-import path from 'path';
-import readline from 'readline/promises';
-import { listBackups, cleanOldBackups, BACKUP_DIR } from '../utils/backup.js';
+import path from "path";
+import readline from "readline/promises";
+import { listBackups, cleanOldBackups, BACKUP_DIR } from "../utils/backup.js";
 
 // ============================================================================
 // TYPES
@@ -35,40 +35,40 @@ export async function runCleanBackups(options: CleanBackupsOptions = {}): Promis
   const backups = listBackups(cwd);
 
   if (backups.length === 0) {
-    console.log('No backups found in .env-twin/ directory');
+    console.log("No backups found in .env-twin/ directory");
     process.exit(0);
   }
 
   if (backups.length <= keepCount) {
     console.log(`You have ${backups.length} backup(s). Keeping ${keepCount} most recent.`);
-    console.log('No backups to delete.');
+    console.log("No backups to delete.");
     process.exit(0);
   }
 
   const backupsToDelete = backups.slice(keepCount);
 
   console.log(`You have ${backups.length} backup(s). Keeping ${keepCount} most recent.`);
-  console.log('');
-  console.log('Backups to delete:');
-  backupsToDelete.forEach(backup => {
-    console.log(`  - ${formatTimestamp(backup.timestamp)} (${backup.files.join(', ')})`);
+  console.log("");
+  console.log("Backups to delete:");
+  backupsToDelete.forEach((backup) => {
+    console.log(`  - ${formatTimestamp(backup.timestamp)} (${backup.files.join(", ")})`);
   });
-  console.log('');
+  console.log("");
 
   if (!options.yes) {
-    console.log('To skip this confirmation, use: env-twin clean-backups --yes');
+    console.log("To skip this confirmation, use: env-twin clean-backups --yes");
     console.log(
-      'To keep a different number of backups, use: env-twin clean-backups --keep <number>'
+      "To keep a different number of backups, use: env-twin clean-backups --keep <number>",
     );
-    console.log('');
+    console.log("");
 
     const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
     try {
-      const answer = await rl.question('Do you want to proceed with the cleanup? (y/N): ');
+      const answer = await rl.question("Do you want to proceed with the cleanup? (y/N): ");
 
-      if (answer.toLowerCase() !== 'y' && answer.toLowerCase() !== 'yes') {
-        console.log('Cleanup cancelled.');
+      if (answer.toLowerCase() !== "y" && answer.toLowerCase() !== "yes") {
+        console.log("Cleanup cancelled.");
         process.exit(0);
       }
     } finally {
@@ -79,11 +79,11 @@ export async function runCleanBackups(options: CleanBackupsOptions = {}): Promis
   // Perform cleanup
   const { deleted, kept } = cleanOldBackups(cwd, keepCount);
 
-  console.log('');
-  console.log('Cleanup Summary:');
+  console.log("");
+  console.log("Cleanup Summary:");
   console.log(`  ✓ Deleted ${deleted.length} backup set(s)`);
   console.log(`  ✓ Kept ${kept.length} backup set(s)`);
 
-  console.log('');
-  console.log('Cleanup completed successfully!');
+  console.log("");
+  console.log("Cleanup completed successfully!");
 }

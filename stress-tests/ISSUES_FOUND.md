@@ -84,7 +84,7 @@ export EXPORTED=value
 
 ```typescript
 // Handle 'export' prefix (bash syntax: export KEY=value)
-if (key.startsWith('export ')) {
+if (key.startsWith("export ")) {
   key = key.substring(7).trim();
 }
 ```
@@ -143,8 +143,8 @@ export EXPORTED=  # No newline at end!
 
 ```typescript
 // Ensure file ends with newline (POSIX standard)
-if (!newContent.endsWith('\n')) {
-  newContent += '\n';
+if (!newContent.endsWith("\n")) {
+  newContent += "\n";
 }
 ```
 

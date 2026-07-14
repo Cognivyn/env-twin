@@ -1,6 +1,6 @@
-import fs from 'fs';
-import path from 'path';
-import { ensureBackupDirInGitignore } from './gitignore.js';
+import fs from "fs";
+import path from "path";
+import { ensureBackupDirInGitignore } from "./gitignore.js";
 
 // ============================================================================
 // TYPES
@@ -16,7 +16,7 @@ export interface BackupInfo {
 // CONSTANTS
 // ============================================================================
 
-export const BACKUP_DIR = '.env-twin';
+export const BACKUP_DIR = ".env-twin";
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -25,11 +25,11 @@ export const BACKUP_DIR = '.env-twin';
 function getTimestamp(): string {
   const now = new Date();
   const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  const seconds = String(now.getSeconds()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const seconds = String(now.getSeconds()).padStart(2, "0");
   return `${year}${month}${day}-${hours}${minutes}${seconds}`;
 }
 
@@ -53,7 +53,7 @@ function ensureBackupDir(cwd: string): boolean {
     return true;
   } catch (error) {
     console.error(
-      `Error: Failed to create backup directory: ${error instanceof Error ? error.message : String(error)}`
+      `Error: Failed to create backup directory: ${error instanceof Error ? error.message : String(error)}`,
     );
     return false;
   }
@@ -78,12 +78,12 @@ export function createBackup(filePath: string, cwd: string): boolean {
     const backupFileName = `${fileName}.${timestamp}`;
     const backupPath = path.join(cwd, BACKUP_DIR, backupFileName);
 
-    const content = fs.readFileSync(filePath, 'utf-8');
-    fs.writeFileSync(backupPath, content, { encoding: 'utf-8', mode: 0o600 });
+    const content = fs.readFileSync(filePath, "utf-8");
+    fs.writeFileSync(backupPath, content, { encoding: "utf-8", mode: 0o600 });
     return true;
   } catch (error) {
     console.error(
-      `Error: Failed to backup ${path.basename(filePath)}: ${error instanceof Error ? error.message : String(error)}`
+      `Error: Failed to backup ${path.basename(filePath)}: ${error instanceof Error ? error.message : String(error)}`,
     );
     return false;
   }
@@ -107,12 +107,12 @@ export function createBackups(filePaths: string[], cwd: string): string | null {
       const backupFileName = `${fileName}.${timestamp}`;
       const backupPath = path.join(cwd, BACKUP_DIR, backupFileName);
 
-      const content = fs.readFileSync(filePath, 'utf-8');
-      fs.writeFileSync(backupPath, content, { encoding: 'utf-8', mode: 0o600 });
+      const content = fs.readFileSync(filePath, "utf-8");
+      fs.writeFileSync(backupPath, content, { encoding: "utf-8", mode: 0o600 });
       successCount++;
     } catch (error) {
       console.error(
-        `Warning: Failed to backup ${path.basename(filePath)}: ${error instanceof Error ? error.message : String(error)}`
+        `Warning: Failed to backup ${path.basename(filePath)}: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }
@@ -160,7 +160,7 @@ export function listBackups(cwd: string): BackupInfo[] {
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   } catch (error) {
     console.error(
-      `Error: Failed to list backups: ${error instanceof Error ? error.message : String(error)}`
+      `Error: Failed to list backups: ${error instanceof Error ? error.message : String(error)}`,
     );
     return [];
   }
@@ -172,7 +172,7 @@ export function listBackups(cwd: string): BackupInfo[] {
 
 export function restoreBackup(
   timestamp: string,
-  cwd: string
+  cwd: string,
 ): { restored: string[]; failed: string[] } {
   const backupPath = path.join(cwd, BACKUP_DIR);
   const restored: string[] = [];
@@ -195,14 +195,14 @@ export function restoreBackup(
 
       // Security Check: Path Traversal
       const relative = path.relative(cwd, targetFilePath);
-      if (relative.startsWith('..') || path.isAbsolute(relative)) {
+      if (relative.startsWith("..") || path.isAbsolute(relative)) {
         console.error(`Security Warning: Skipping path traversal attempt: ${originalFileName}`);
         failed.push(originalFileName);
         continue;
       }
 
       try {
-        const content = fs.readFileSync(backupFilePath, 'utf-8');
+        const content = fs.readFileSync(backupFilePath, "utf-8");
 
         // Security Check: Symlink Attack
         // Check if target exists and is a symlink before writing
@@ -219,12 +219,12 @@ export function restoreBackup(
           }
         } catch (error: any) {
           // Ignore ENOENT (file not found), handle other errors
-          if (error.code !== 'ENOENT') {
+          if (error.code !== "ENOENT") {
             throw error;
           }
         }
 
-        fs.writeFileSync(targetFilePath, content, 'utf-8');
+        fs.writeFileSync(targetFilePath, content, "utf-8");
         restored.push(originalFileName);
       } catch (error) {
         failed.push(originalFileName);
@@ -232,7 +232,7 @@ export function restoreBackup(
     }
   } catch (error) {
     console.error(
-      `Error: Failed to restore backup: ${error instanceof Error ? error.message : String(error)}`
+      `Error: Failed to restore backup: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
 
@@ -266,7 +266,7 @@ export function deleteBackup(timestamp: string, cwd: string): boolean {
     return deletedCount > 0;
   } catch (error) {
     console.error(
-      `Error: Failed to delete backup: ${error instanceof Error ? error.message : String(error)}`
+      `Error: Failed to delete backup: ${error instanceof Error ? error.message : String(error)}`,
     );
     return false;
   }
@@ -274,7 +274,7 @@ export function deleteBackup(timestamp: string, cwd: string): boolean {
 
 export function cleanOldBackups(
   cwd: string,
-  keepCount: number = 10
+  keepCount: number = 10,
 ): { deleted: string[]; kept: string[] } {
   const backups = listBackups(cwd);
   const deleted: string[] = [];
