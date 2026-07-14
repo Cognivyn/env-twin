@@ -23,6 +23,7 @@ interface CliOptions {
   dryRun?: boolean;
   verbose?: boolean;
   json?: boolean;
+  check?: boolean;
 }
 
 interface ParsedArgs {
@@ -45,7 +46,8 @@ type FlagKey =
   | "FORCE"
   | "DRY_RUN"
   | "VERBOSE"
-  | "JSON";
+  | "JSON"
+  | "CHECK";
 
 const CLI_FLAGS: Record<FlagKey, readonly string[]> = {
   SOURCE: ["--source", "--src"],
@@ -63,6 +65,7 @@ const CLI_FLAGS: Record<FlagKey, readonly string[]> = {
   DRY_RUN: ["--dry-run", "--simulate"],
   VERBOSE: ["--verbose", "-V"],
   JSON: ["--json"],
+  CHECK: ["--check"],
 } as const;
 
 // ============================================================================
@@ -164,6 +167,10 @@ function parseArgs(): ParsedArgs {
         params.json = true;
         break;
 
+      case CLI_FLAGS.CHECK.includes(arg):
+        params.check = true;
+        break;
+
       default:
         if (arg.startsWith("-")) {
           throw new Error(`Unknown option '${arg}'`);
@@ -197,6 +204,7 @@ function printUsage() {
 Usage: env-twin [command] [options]
 
 Commands:
+  compare               Compare .env* files without modifying them
   sync                  Synchronize environment variable keys across all .env* files
   restore [timestamp]   Restore .env* files from a backup (auto-selects most recent if no timestamp)
   clean-backups         Delete old backups, keeping the most recent ones
@@ -223,6 +231,20 @@ Examples:
   env-twin clean-backups --keep 5
 `,
   );
+}
+
+function printCompareUsage() {
+  console.log(`
+Usage: env-twin compare [options]
+
+Compare environment variable keys without modifying files.
+
+Options:
+  --source, --src       Source-of-truth file
+  --json                Output a redacted, machine-readable report
+  --check               Exit with code 1 when drift is detected
+  --help, -h            Display this help message
+`);
 }
 
 function printSyncUsage() {
@@ -409,6 +431,8 @@ try {
   if (options.help) {
     if (command === "sync") {
       printSyncUsage();
+    } else if (command === "compare") {
+      printCompareUsage();
     } else if (command === "restore") {
       printRestoreUsage();
     } else if (command === "clean-backups") {
@@ -435,6 +459,9 @@ try {
       json: options.json,
       source: options.source,
     });
+  } else if (command === "compare") {
+    const { runCompare } = await import("./commands/compare.js");
+    process.exitCode = runCompare({ source: options.source, json: options.json, check: options.check });
   } else if (command === "restore") {
     // Import and run enhanced restore command
     const { runEnhancedRestore } = await import("./commands/restore.js");

@@ -12,6 +12,7 @@ With built-in backup creation, restoration, and cleanup capabilities, env-twin p
 
 ### Environment Variable Synchronization
 - Automatically syncs all environment variable keys across `.env*` files
+- `env-twin compare` provides read-only drift analysis; `--json` output is redacted and `--check` returns 1 when drift exists
 - Maintains existing values while adding missing keys
 - Preserves comments, formatting, and file structure
 

@@ -85,11 +85,14 @@ npx env-twin sync --yes --json
 - **sync** – Synchronize environment variable keys across all `.env*` files with backup
 - **restore** – Restore `.env*` files from backups with rollback support
 - **clean-backups** – Remove old backups to save disk space
+- **compare** – Read-only, redacted drift analysis for humans, CI, and AI agents
 
 ### Example Commands
 
 ```bash
 npx env-twin sync
+npx env-twin compare --check
+npx env-twin compare --json
 npx env-twin restore 20241125-143022 --yes
 npx env-twin clean-backups --keep 5
 ```
