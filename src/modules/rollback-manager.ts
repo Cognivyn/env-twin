@@ -117,6 +117,10 @@ export class RollbackManager {
             }
 
             const filePath = path.join(this.cwd, fileName);
+            if (fs.existsSync(filePath) && !fs.lstatSync(filePath).isFile()) {
+              resolveFile({ fileName, filePath, exists: false });
+              return;
+            }
             const rollbackFile: RollbackFile = {
               fileName,
               filePath,
@@ -239,12 +243,14 @@ export class RollbackManager {
       };
 
       const rolledBackFiles: string[] = [];
+      let failedFiles = 0;
 
       // Process each file in the snapshot
       for (const fileInfo of metadata.files) {
         try {
           // Security check: Prevent path traversal during restore
           if (!this.isPathSafe(fileInfo.fileName)) {
+            failedFiles++;
             continue;
           }
 
@@ -263,6 +269,9 @@ export class RollbackManager {
               }
 
               // Write file
+              if (fs.existsSync(filePath) && fs.lstatSync(filePath).isSymbolicLink()) {
+                fs.unlinkSync(filePath);
+              }
               fs.writeFileSync(filePath, content, 'utf-8');
 
               // Restore permissions if available
@@ -275,6 +284,8 @@ export class RollbackManager {
               }
 
               rolledBackFiles.push(fileInfo.fileName);
+            } else {
+              failedFiles++;
             }
           } else if (!fileInfo.exists) {
             // File didn't exist in snapshot, remove if it exists now
@@ -284,14 +295,15 @@ export class RollbackManager {
             }
           }
         } catch (error) {
-          // Continue with other files
+          failedFiles++;
         }
       }
 
       return {
-        success: true,
+        success: failedFiles === 0,
         snapshotId,
         rolledBackFiles,
+        error: failedFiles > 0 ? `Failed to roll back ${failedFiles} file(s)` : undefined,
       };
     } catch (error) {
       return {

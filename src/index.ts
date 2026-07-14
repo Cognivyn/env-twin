@@ -125,10 +125,10 @@ function parseArgs(): ParsedArgs {
         if (!nextArg || nextArg.startsWith('-')) {
           throw new Error(`Missing value for ${arg} argument`);
         }
-        params.keep = parseInt(nextArg, 10);
-        if (isNaN(params.keep)) {
-          throw new Error(`Invalid value for ${arg}: must be a number`);
+        if (!/^\d+$/.test(nextArg)) {
+          throw new Error(`Invalid value for ${arg}: must be a non-negative integer`);
         }
+        params.keep = Number(nextArg);
         i++;
         break;
 
