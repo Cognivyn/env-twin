@@ -12,8 +12,10 @@ protecting example files from real secret values.
 - CLI help: `bun dist/index.js --help`
 - Version: `bun dist/index.js --version`
 - Package check: `npm pack --dry-run`
-- Commands: `sync`, `restore [timestamp]`, `clean-backups`
+- Commands: `compare`, `sync`, `restore [timestamp]`, `clean-backups`
 - Automation: use `--yes`; use `--json` where supported.
+- `compare --json` emits a redacted, deterministic report containing key names and drift metadata, never values.
+- `compare --check` exits 1 when drift is detected and 0 when files are aligned.
 
 ## Safety contract
 
