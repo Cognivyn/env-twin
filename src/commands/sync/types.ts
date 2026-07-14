@@ -1,4 +1,4 @@
-import type { EnvAnalysisReport } from '../../modules/sync-logic.js';
+import type { EnvAnalysisReport } from "../../modules/sync-logic.js";
 
 export interface SyncCommandOptions {
   noBackup?: boolean;
@@ -10,11 +10,11 @@ export interface SyncCommandOptions {
 export interface PendingAction {
   file: string;
   key: string;
-  action: 'add';
+  action: "add";
   value: string;
 }
 
-export type BulkDecision = 'all_empty' | 'all_copy' | 'ask' | 'skip';
+export type BulkDecision = "all_empty" | "all_copy" | "ask" | "skip";
 
 export interface PromptChoice<T = string> {
   title: string;

@@ -1,7 +1,7 @@
-import fs from 'fs';
-import path from 'path';
-import { BackupInfo } from '../utils/backup.js';
-import { writeAtomic } from '../utils/atomic-fs.js';
+import fs from "fs";
+import path from "path";
+import { BackupInfo } from "../utils/backup.js";
+import { writeAtomic } from "../utils/atomic-fs.js";
 
 /**
  * File Restoration Module
@@ -34,7 +34,7 @@ export interface RestoreProgress {
   current: number;
   total: number;
   currentFile: string;
-  phase: 'validating' | 'backing-up' | 'restoring' | 'completed' | 'failed';
+  phase: "validating" | "backing-up" | "restoring" | "completed" | "failed";
 }
 
 export type ProgressCallback = (progress: RestoreProgress) => void;
@@ -44,9 +44,9 @@ export type ProgressCallback = (progress: RestoreProgress) => void;
  */
 export class FileRestorer {
   private static readonly SENSITIVE_FILE_PATTERN = /^\.env(\.|$)/;
-  private static readonly DEFAULT_WRITE_OPTIONS: fs.WriteFileOptions = { encoding: 'utf-8' };
+  private static readonly DEFAULT_WRITE_OPTIONS: fs.WriteFileOptions = { encoding: "utf-8" };
   private static readonly SECURE_WRITE_OPTIONS: fs.WriteFileOptions = {
-    encoding: 'utf-8',
+    encoding: "utf-8",
     mode: 0o600,
   };
   private cwd: string;
@@ -56,7 +56,7 @@ export class FileRestorer {
 
   constructor(cwd: string = process.cwd()) {
     this.cwd = path.resolve(cwd);
-    this.backupDir = path.join(this.cwd, '.env-twin');
+    this.backupDir = path.join(this.cwd, ".env-twin");
   }
 
   /**
@@ -73,7 +73,7 @@ export class FileRestorer {
     // Check if path is outside CWD:
     // 1. Starts with '..' (parent directory)
     // 2. Is absolute (can happen on Windows if on different drive)
-    return !relative.startsWith('..') && !path.isAbsolute(relative);
+    return !relative.startsWith("..") && !path.isAbsolute(relative);
   }
 
   /**
@@ -88,7 +88,7 @@ export class FileRestorer {
    */
   async restoreFiles(
     backup: BackupInfo,
-    options: FileRestoreOptions = {}
+    options: FileRestoreOptions = {},
   ): Promise<FileRestoreResult> {
     const {
       preservePermissions = true,
@@ -111,14 +111,14 @@ export class FileRestorer {
 
     try {
       // Update progress
-      this.updateProgress(0, backup.files.length, 'validating', 'Validating backup files...');
+      this.updateProgress(0, backup.files.length, "validating", "Validating backup files...");
 
       // Validate backup files
       const validationResult = await this.validateBackupFiles(backup);
       if (!validationResult.isValid) {
         result.errors.set(
-          'backup',
-          `Backup validation failed: ${validationResult.errors.join(', ')}`
+          "backup",
+          `Backup validation failed: ${validationResult.errors.join(", ")}`,
         );
         return result;
       }
@@ -137,21 +137,21 @@ export class FileRestorer {
       // Create rollback snapshot if requested
       let rollbackId: string | null = null;
       if (createBackup && !force) {
-        this.updateProgress(0, backup.files.length, 'backing-up', 'Creating pre-restore backup...');
+        this.updateProgress(0, backup.files.length, "backing-up", "Creating pre-restore backup...");
         rollbackId = await this.createRollbackSnapshot(backup.files);
         if (!rollbackId) {
           result.warnings.push(
-            'Failed to create rollback snapshot, proceeding without rollback capability'
+            "Failed to create rollback snapshot, proceeding without rollback capability",
           );
         }
       }
 
       // Restore files
-      this.updateProgress(0, backup.files.length, 'restoring', 'Restoring files...');
+      this.updateProgress(0, backup.files.length, "restoring", "Restoring files...");
 
       for (let i = 0; i < backup.files.length; i++) {
         const fileName = backup.files[i];
-        this.updateProgress(i, backup.files.length, 'restoring', `Restoring ${fileName}...`);
+        this.updateProgress(i, backup.files.length, "restoring", `Restoring ${fileName}...`);
 
         try {
           const fileResult = await this.restoreSingleFile(fileName, backup.timestamp, {
@@ -165,7 +165,7 @@ export class FileRestorer {
           } else {
             result.failedFiles.push(fileName);
             result.failedCount++;
-            result.errors.set(fileName, fileResult.error || 'Unknown error');
+            result.errors.set(fileName, fileResult.error || "Unknown error");
           }
         } catch (error) {
           result.failedFiles.push(fileName);
@@ -181,16 +181,16 @@ export class FileRestorer {
       this.updateProgress(
         backup.files.length,
         backup.files.length,
-        'completed',
-        'Restore completed'
+        "completed",
+        "Restore completed",
       );
     } catch (error) {
-      result.errors.set('general', error instanceof Error ? error.message : String(error));
+      result.errors.set("general", error instanceof Error ? error.message : String(error));
       this.updateProgress(
         0,
         0,
-        'failed',
-        `Restore failed: ${error instanceof Error ? error.message : String(error)}`
+        "failed",
+        `Restore failed: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
 
@@ -206,7 +206,7 @@ export class FileRestorer {
   private isSensitiveFile(fileName: string): boolean {
     // Check if it's an environment file (.env, .env.local, .env.production, etc.)
     // But explicitly exclude .env.example which is usually safe
-    return FileRestorer.SENSITIVE_FILE_PATTERN.test(fileName) && fileName !== '.env.example';
+    return FileRestorer.SENSITIVE_FILE_PATTERN.test(fileName) && fileName !== ".env.example";
   }
 
   /**
@@ -215,7 +215,7 @@ export class FileRestorer {
   private async restoreSingleFile(
     fileName: string,
     timestamp: string,
-    options: { preservePermissions: boolean; preserveTimestamps: boolean }
+    options: { preservePermissions: boolean; preserveTimestamps: boolean },
   ): Promise<{ success: boolean; error?: string }> {
     try {
       // Validate filename to prevent path traversal
@@ -226,8 +226,8 @@ export class FileRestorer {
       }
 
       // Explicitly reject . and .. which might pass generic validation
-      if (fileName === '.' || fileName === '..') {
-        return { success: false, error: 'Invalid filename: . and .. are not allowed' };
+      if (fileName === "." || fileName === "..") {
+        return { success: false, error: "Invalid filename: . and .. are not allowed" };
       }
 
       const backupFilePath = path.join(this.backupDir, `${fileName}.${timestamp}`);
@@ -258,7 +258,7 @@ export class FileRestorer {
       // Read backup file content
       let content: string;
       try {
-        content = fs.readFileSync(backupFilePath, 'utf-8');
+        content = fs.readFileSync(backupFilePath, "utf-8");
       } catch (error) {
         return { success: false, error: `Cannot read backup file: ${backupFilePath}` };
       }
@@ -293,7 +293,7 @@ export class FileRestorer {
         }
       } catch (error: any) {
         // If file doesn't exist, that's fine. Other errors are problems.
-        if (error.code !== 'ENOENT') {
+        if (error.code !== "ENOENT") {
           return { success: false, error: `Cannot access target path: ${error.message}` };
         }
       }
@@ -333,7 +333,7 @@ export class FileRestorer {
    * Validate backup files before restoration
    */
   private async validateBackupFiles(
-    backup: BackupInfo
+    backup: BackupInfo,
   ): Promise<{ isValid: boolean; errors: string[]; warnings: string[] }> {
     const errors: string[] = [];
     const warnings: string[] = [];
@@ -365,13 +365,13 @@ export class FileRestorer {
 
         // Try to read file content to ensure it's not corrupted
         try {
-          fs.readFileSync(backupFilePath, 'utf-8');
+          fs.readFileSync(backupFilePath, "utf-8");
         } catch (error) {
           errors.push(`Backup file corrupted or has encoding issues: ${fileName}`);
         }
       } catch (error) {
         errors.push(
-          `Cannot access backup file ${fileName}: ${error instanceof Error ? error.message : String(error)}`
+          `Cannot access backup file ${fileName}: ${error instanceof Error ? error.message : String(error)}`,
         );
       }
     }
@@ -403,8 +403,8 @@ export class FileRestorer {
   private updateProgress(
     current: number,
     total: number,
-    phase: RestoreProgress['phase'],
-    currentFile: string
+    phase: RestoreProgress["phase"],
+    currentFile: string,
   ): void {
     const progress: RestoreProgress = {
       current,
@@ -446,7 +446,7 @@ export class FileRestorer {
    */
   getFileInfo(
     fileName: string,
-    timestamp: string
+    timestamp: string,
   ): { exists: boolean; size?: number; modified?: Date } {
     const targetFilePath = path.join(this.cwd, fileName);
 
@@ -473,43 +473,43 @@ export class FileRestorer {
     // Check for invalid characters (common across platforms)
     const invalidChars = /[<>:"/\\|?*\x00-\x1f]/;
     if (invalidChars.test(filePath)) {
-      return { isValid: false, error: 'File path contains invalid characters' };
+      return { isValid: false, error: "File path contains invalid characters" };
     }
 
     // Check path length (Windows limit is 260, Unix-like systems have higher limits)
-    if (process.platform === 'win32' && filePath.length > 260) {
-      return { isValid: false, error: 'File path too long for Windows' };
+    if (process.platform === "win32" && filePath.length > 260) {
+      return { isValid: false, error: "File path too long for Windows" };
     }
 
     // Check for reserved names on Windows
-    if (process.platform === 'win32') {
+    if (process.platform === "win32") {
       const reservedNames = [
-        'CON',
-        'PRN',
-        'AUX',
-        'NUL',
-        'COM1',
-        'COM2',
-        'COM3',
-        'COM4',
-        'COM5',
-        'COM6',
-        'COM7',
-        'COM8',
-        'COM9',
-        'LPT1',
-        'LPT2',
-        'LPT3',
-        'LPT4',
-        'LPT5',
-        'LPT6',
-        'LPT7',
-        'LPT8',
-        'LPT9',
+        "CON",
+        "PRN",
+        "AUX",
+        "NUL",
+        "COM1",
+        "COM2",
+        "COM3",
+        "COM4",
+        "COM5",
+        "COM6",
+        "COM7",
+        "COM8",
+        "COM9",
+        "LPT1",
+        "LPT2",
+        "LPT3",
+        "LPT4",
+        "LPT5",
+        "LPT6",
+        "LPT7",
+        "LPT8",
+        "LPT9",
       ];
       const fileName = path.basename(filePath).toUpperCase();
       if (reservedNames.includes(fileName)) {
-        return { isValid: false, error: 'File name is reserved on Windows' };
+        return { isValid: false, error: "File name is reserved on Windows" };
       }
     }
 
@@ -527,9 +527,9 @@ export class FileRestorer {
   } {
     return {
       platform: process.platform,
-      encoding: 'utf-8',
+      encoding: "utf-8",
       pathSeparator: path.sep,
-      supportsPermissions: process.platform !== 'win32', // Windows doesn't fully support Unix-style permissions
+      supportsPermissions: process.platform !== "win32", // Windows doesn't fully support Unix-style permissions
     };
   }
 }

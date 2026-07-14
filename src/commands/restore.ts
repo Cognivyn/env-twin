@@ -1,12 +1,12 @@
-import fs from 'fs';
-import path from 'path';
-import readline from 'readline';
-import { BackupDiscovery, BackupValidationResult } from '../modules/backup-discovery.js';
-import { TimestampParser } from '../modules/timestamp-parser.js';
-import { FileRestorer, FileRestoreOptions, RestoreProgress } from '../modules/file-restoration.js';
-import { RollbackManager, RollbackSnapshot } from '../modules/rollback-manager.js';
-import { logger, RestoreLogger } from '../modules/logger.js';
-import { listBackups } from '../utils/backup.js';
+import fs from "fs";
+import path from "path";
+import readline from "readline";
+import { BackupDiscovery, BackupValidationResult } from "../modules/backup-discovery.js";
+import { TimestampParser } from "../modules/timestamp-parser.js";
+import { FileRestorer, FileRestoreOptions, RestoreProgress } from "../modules/file-restoration.js";
+import { RollbackManager, RollbackSnapshot } from "../modules/rollback-manager.js";
+import { logger, RestoreLogger } from "../modules/logger.js";
+import { listBackups } from "../utils/backup.js";
 
 // ============================================================================
 // TYPES AND INTERFACES
@@ -59,7 +59,7 @@ export async function runEnhancedRestore(options: EnhancedRestoreOptions = {}): 
 
   try {
     // Log operation start
-    logger.info('Restore operation started', {
+    logger.info("Restore operation started", {
       targetTimestamp: options.timestamp,
       sessionId: operationId,
     });
@@ -70,11 +70,11 @@ export async function runEnhancedRestore(options: EnhancedRestoreOptions = {}): 
     // Run the restore process
     await runRestoreProcess(session, restoreLogger);
   } catch (error) {
-    logger.fatal('Restore operation failed', {
+    logger.fatal("Restore operation failed", {
       error: error instanceof Error ? error.message : String(error),
     });
     console.error(
-      `\n❌ Restore operation failed: ${error instanceof Error ? error.message : String(error)}`
+      `\n❌ Restore operation failed: ${error instanceof Error ? error.message : String(error)}`,
     );
     process.exit(1);
   }
@@ -90,7 +90,7 @@ export async function runEnhancedRestore(options: EnhancedRestoreOptions = {}): 
 function createRestoreSession(options: EnhancedRestoreOptions): RestoreSession {
   const sessionId = `restore-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-  logger.info('Creating restore session', {
+  logger.info("Creating restore session", {
     sessionId,
     options,
   });
@@ -114,7 +114,7 @@ function createRestoreSession(options: EnhancedRestoreOptions): RestoreSession {
  */
 async function runRestoreProcess(
   session: RestoreSession,
-  restoreLogger: RestoreLogger
+  restoreLogger: RestoreLogger,
 ): Promise<void> {
   const {
     timestamp: requestedTimestamp,
@@ -124,7 +124,7 @@ async function runRestoreProcess(
     verbose,
   } = session.options;
 
-  console.log('\n🔄 Starting enhanced restore process...\n');
+  console.log("\n🔄 Starting enhanced restore process...\n");
 
   // Step 1: Discover and validate backups
   const discoveryResult = await discoverBackups(session, restoreLogger);
@@ -158,8 +158,8 @@ async function runRestoreProcess(
   if (!skipConfirmation) {
     const userConfirmed = await confirmRestoreOperation(session, restoreLogger);
     if (!userConfirmed) {
-      console.log('\n❌ Restore operation cancelled by user');
-      logger.info('Restore operation cancelled by user');
+      console.log("\n❌ Restore operation cancelled by user");
+      logger.info("Restore operation cancelled by user");
       process.exit(0);
     }
   }
@@ -175,26 +175,26 @@ async function runRestoreProcess(
  */
 async function discoverBackups(
   session: RestoreSession,
-  restoreLogger: RestoreLogger
+  restoreLogger: RestoreLogger,
 ): Promise<{ success: boolean; data?: BackupValidationResult; error?: string }> {
   try {
-    console.log('📁 Discovering available backups...');
+    console.log("📁 Discovering available backups...");
 
     const backupDiscovery = new BackupDiscovery(process.cwd());
     const result = backupDiscovery.discoverAndValidateBackups();
 
     restoreLogger.logBackupDiscovery(
       result.validatedBackups.length,
-      result.validatedBackups.filter(b => b.isValid).length
+      result.validatedBackups.filter((b) => b.isValid).length,
     );
 
     if (result.validatedBackups.length === 0) {
-      return { success: false, error: 'No backups found in .env-twin/ directory' };
+      return { success: false, error: "No backups found in .env-twin/ directory" };
     }
 
     if (result.errors.length > 0) {
-      console.log('⚠️  Backup discovery warnings:');
-      result.errors.forEach(error => console.log(`   • ${error}`));
+      console.log("⚠️  Backup discovery warnings:");
+      result.errors.forEach((error) => console.log(`   • ${error}`));
     }
 
     return { success: true, data: result };
@@ -208,38 +208,38 @@ async function discoverBackups(
  */
 async function listAvailableBackups(
   result: BackupValidationResult,
-  restoreLogger: RestoreLogger
+  restoreLogger: RestoreLogger,
 ): Promise<void> {
-  console.log('📋 Available backups:\n');
+  console.log("📋 Available backups:\n");
 
-  const validBackups = result.validatedBackups.filter(b => b.isValid);
-  const invalidBackups = result.validatedBackups.filter(b => !b.isValid);
+  const validBackups = result.validatedBackups.filter((b) => b.isValid);
+  const invalidBackups = result.validatedBackups.filter((b) => !b.isValid);
 
   if (validBackups.length > 0) {
-    console.log('✅ Valid backups:');
+    console.log("✅ Valid backups:");
     validBackups.forEach((backup, index) => {
       const description = TimestampParser.generateBackupDescription(backup.timestamp);
       console.log(`   ${index + 1}. ${description}`);
-      console.log(`      Files: ${backup.files.join(', ')}`);
+      console.log(`      Files: ${backup.files.join(", ")}`);
       console.log(`      Created: ${backup.createdAt.toISOString()}\n`);
     });
   }
 
   if (invalidBackups.length > 0) {
-    console.log('⚠️  Invalid backups:');
+    console.log("⚠️  Invalid backups:");
     invalidBackups.forEach((backup, index) => {
       console.log(`   ${index + 1}. ${backup.timestamp}`);
-      console.log(`      Errors: ${backup.errors.join(', ')}\n`);
+      console.log(`      Errors: ${backup.errors.join(", ")}\n`);
     });
   }
 
-  console.log('\n💡 Usage examples:');
+  console.log("\n💡 Usage examples:");
   if (validBackups.length > 0) {
     const mostRecent = validBackups.sort(
-      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
     )[0];
     console.log(
-      `   env-twin restore                    # Restore most recent (${mostRecent.timestamp})`
+      `   env-twin restore                    # Restore most recent (${mostRecent.timestamp})`,
     );
     console.log(`   env-twin restore ${mostRecent.timestamp}         # Restore specific backup`);
   }
@@ -252,35 +252,35 @@ async function listAvailableBackups(
 async function selectBackup(
   session: RestoreSession,
   result: BackupValidationResult,
-  restoreLogger: RestoreLogger
+  restoreLogger: RestoreLogger,
 ): Promise<any> {
   const { timestamp: requestedTimestamp } = session.options;
-  const validBackups = result.validatedBackups.filter(b => b.isValid);
+  const validBackups = result.validatedBackups.filter((b) => b.isValid);
 
   if (requestedTimestamp) {
     // User specified a timestamp - validate it
-    const backup = validBackups.find(b => b.timestamp === requestedTimestamp);
+    const backup = validBackups.find((b) => b.timestamp === requestedTimestamp);
     if (!backup) {
       throw new Error(`Backup with timestamp '${requestedTimestamp}' not found or invalid`);
     }
 
     console.log(
-      `🎯 Selected specific backup: ${TimestampParser.generateBackupDescription(requestedTimestamp)}`
+      `🎯 Selected specific backup: ${TimestampParser.generateBackupDescription(requestedTimestamp)}`,
     );
     logger.info(`User selected specific backup`, { timestamp: requestedTimestamp });
     return backup;
   } else {
     // Auto-select most recent backup
     const mostRecent = validBackups.sort(
-      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
     )[0];
 
     if (!mostRecent) {
-      throw new Error('No valid backups available for automatic selection');
+      throw new Error("No valid backups available for automatic selection");
     }
 
     console.log(
-      `🎯 Auto-selected most recent backup: ${TimestampParser.generateBackupDescription(mostRecent.timestamp)}`
+      `🎯 Auto-selected most recent backup: ${TimestampParser.generateBackupDescription(mostRecent.timestamp)}`,
     );
     restoreLogger.logMostRecentSelection(mostRecent.timestamp);
     return mostRecent;
@@ -293,9 +293,9 @@ async function selectBackup(
  */
 async function inspectSelectedBackup(
   session: RestoreSession,
-  restoreLogger: RestoreLogger
+  restoreLogger: RestoreLogger,
 ): Promise<FileInspectionInfo[]> {
-  console.log('🔍 Inspecting selected backup...');
+  console.log("🔍 Inspecting selected backup...");
 
   const backup = session.selectedBackup as any;
   const fileInfo: FileInspectionInfo[] = [];
@@ -325,10 +325,10 @@ async function inspectSelectedBackup(
  */
 async function createPreRestoreSnapshot(
   session: RestoreSession,
-  restoreLogger: RestoreLogger
+  restoreLogger: RestoreLogger,
 ): Promise<{ success: boolean; snapshot?: RollbackSnapshot; error?: string }> {
   try {
-    console.log('📸 Creating pre-restore snapshot...');
+    console.log("📸 Creating pre-restore snapshot...");
 
     const rollbackManager = new RollbackManager(process.cwd());
     const snapshot = await rollbackManager.createSnapshot(session.filesToRestore, {
@@ -338,7 +338,7 @@ async function createPreRestoreSnapshot(
     });
 
     console.log(`   ✅ Snapshot created: ${snapshot.id}`);
-    logger.info('Pre-restore snapshot created', {
+    logger.info("Pre-restore snapshot created", {
       snapshotId: snapshot.id,
       fileCount: snapshot.files.length,
     });
@@ -347,7 +347,7 @@ async function createPreRestoreSnapshot(
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     console.log(`   ❌ Failed to create snapshot: ${errorMsg}`);
-    logger.warn('Failed to create pre-restore snapshot', { error: errorMsg });
+    logger.warn("Failed to create pre-restore snapshot", { error: errorMsg });
     return { success: false, error: errorMsg };
   }
 }
@@ -357,13 +357,13 @@ async function createPreRestoreSnapshot(
  */
 async function confirmRestoreOperation(
   session: RestoreSession,
-  restoreLogger: RestoreLogger
+  restoreLogger: RestoreLogger,
 ): Promise<boolean> {
   const backup = session.selectedBackup as any;
 
-  console.log('\n📋 Restore Operation Summary:');
+  console.log("\n📋 Restore Operation Summary:");
   console.log(`   Backup: ${TimestampParser.generateBackupDescription(backup.timestamp)}`);
-  console.log(`   Files to restore: ${backup.files.join(', ')}`);
+  console.log(`   Files to restore: ${backup.files.join(", ")}`);
 
   if (session.rollbackSnapshot) {
     console.log(`   Rollback available: ${session.rollbackSnapshot.id}`);
@@ -373,17 +373,17 @@ async function confirmRestoreOperation(
     console.log(`   Mode: DRY RUN (no actual changes will be made)`);
   }
 
-  console.log('\n❓ Do you want to proceed with the restore? (y/N)');
+  console.log("\n❓ Do you want to proceed with the restore? (y/N)");
 
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
   });
 
-  return new Promise(resolve => {
-    rl.question('Answer: ', answer => {
+  return new Promise((resolve) => {
+    rl.question("Answer: ", (answer) => {
       rl.close();
-      const confirmed = answer.toLowerCase().startsWith('y');
+      const confirmed = answer.toLowerCase().startsWith("y");
       restoreLogger.logUserConfirmation(confirmed);
       resolve(confirmed);
     });
@@ -395,9 +395,9 @@ async function confirmRestoreOperation(
  */
 async function performRestore(
   session: RestoreSession,
-  restoreLogger: RestoreLogger
+  restoreLogger: RestoreLogger,
 ): Promise<void> {
-  console.log('\n🚀 Starting restore operation...\n');
+  console.log("\n🚀 Starting restore operation...\n");
 
   const backup = session.selectedBackup as any;
   const fileRestorer = new FileRestorer(process.cwd());
@@ -421,7 +421,7 @@ async function performRestore(
   // Perform restore
   const restoreResult = await fileRestorer.restoreFiles(backup, restoreOptions);
 
-  console.log('\n📊 Restore Results:');
+  console.log("\n📊 Restore Results:");
   console.log(`   ✅ Successfully restored: ${restoreResult.restoredCount} files`);
 
   if (restoreResult.failedCount > 0) {
@@ -432,47 +432,47 @@ async function performRestore(
   }
 
   if (restoreResult.warnings.length > 0) {
-    console.log('\n⚠️  Warnings:');
-    restoreResult.warnings.forEach(warning => console.log(`   • ${warning}`));
+    console.log("\n⚠️  Warnings:");
+    restoreResult.warnings.forEach((warning) => console.log(`   • ${warning}`));
   }
 
   // Handle rollback if restore failed
   if (!restoreResult.success && session.rollbackSnapshot) {
-    console.log('\n🔄 Restore failed, initiating rollback...');
+    console.log("\n🔄 Restore failed, initiating rollback...");
 
     try {
       const rollbackManager = new RollbackManager(process.cwd());
       const rollbackResult = await rollbackManager.rollbackToSnapshot(session.rollbackSnapshot.id);
 
       if (rollbackResult.success) {
-        console.log('✅ Rollback completed successfully');
+        console.log("✅ Rollback completed successfully");
         logger.logRollback(session.rollbackSnapshot.id, true, rollbackResult.rolledBackFiles);
       } else {
-        console.log('❌ Rollback failed');
+        console.log("❌ Rollback failed");
         logger.logRollback(session.rollbackSnapshot.id, false, undefined, rollbackResult.error);
       }
     } catch (error) {
-      console.log('❌ Rollback operation failed');
+      console.log("❌ Rollback operation failed");
       logger.logRollback(
         session.rollbackSnapshot.id,
         false,
         undefined,
-        error instanceof Error ? error.message : String(error)
+        error instanceof Error ? error.message : String(error),
       );
     }
   }
 
   // Final status
   if (restoreResult.success) {
-    console.log('\n🎉 Restore operation completed successfully!');
+    console.log("\n🎉 Restore operation completed successfully!");
     logger.logRestoreComplete(true, restoreResult.restoredCount, restoreResult.failedCount);
   } else {
-    console.log('\n❌ Restore operation completed with errors');
+    console.log("\n❌ Restore operation completed with errors");
     logger.logRestoreComplete(
       false,
       restoreResult.restoredCount,
       restoreResult.failedCount,
-      Array.from(restoreResult.errors.values())
+      Array.from(restoreResult.errors.values()),
     );
     process.exit(1);
   }
@@ -493,7 +493,7 @@ export async function runRestore(options: RestoreOptions = {}): Promise<void> {
     preservePermissions: true,
     preserveTimestamps: true,
     createRollback: true,
-    verbose: process.env.NODE_ENV !== 'production',
+    verbose: process.env.NODE_ENV !== "production",
   };
 
   return await runEnhancedRestore(enhancedOptions);
@@ -511,8 +511,8 @@ function formatBackupForDisplay(backup: any, index: number): string {
   const relativeTime = TimestampParser.formatRelativeTime(backup.timestamp);
 
   return `${index + 1}. ${timestamp} (${relativeTime})
-   Files: ${backup.files.join(', ')}
-   Status: ${backup.isValid ? '✅ Valid' : '❌ Invalid'}`;
+   Files: ${backup.files.join(", ")}
+   Status: ${backup.isValid ? "✅ Valid" : "❌ Invalid"}`;
 }
 
 /**

@@ -1,10 +1,10 @@
-import fs from 'fs';
-import path from 'path';
-import { EnvAnalysisReport, EnvFileAnalysis } from '../../modules/sync-logic.js';
-import { createBackups } from '../../utils/backup.js';
-import { writeAtomic } from '../../utils/atomic-fs.js';
-import { colors } from '../../utils/ui.js';
-import { PendingAction, PromptApi, SyncCommandOptions } from './types.js';
+import fs from "fs";
+import path from "path";
+import { EnvAnalysisReport, EnvFileAnalysis } from "../../modules/sync-logic.js";
+import { createBackups } from "../../utils/backup.js";
+import { writeAtomic } from "../../utils/atomic-fs.js";
+import { colors } from "../../utils/ui.js";
+import { PendingAction, PromptApi, SyncCommandOptions } from "./types.js";
 
 interface ExecuteParams {
   cwd: string;
@@ -18,21 +18,21 @@ export async function executeSyncActions(params: ExecuteParams): Promise<void> {
   const { cwd, report, actions, options, prompts } = params;
 
   if (actions.length === 0) {
-    console.log(colors.green('All files are in sync! No actions needed.'));
+    console.log(colors.green("All files are in sync! No actions needed."));
     return;
   }
 
   printPlan(actions);
   if (!options.yes) {
-    const shouldExecute = await prompts.confirm('Execute these changes?', true);
+    const shouldExecute = await prompts.confirm("Execute these changes?", true);
     if (!shouldExecute) {
-      console.log('Aborted.');
+      console.log("Aborted.");
       return;
     }
   }
 
   if (!options.noBackup) {
-    const filesToBackup = Array.from(new Set(actions.map(a => path.join(cwd, a.file))));
+    const filesToBackup = Array.from(new Set(actions.map((a) => path.join(cwd, a.file))));
     const backupTimestamp = createBackups(filesToBackup, cwd);
     if (backupTimestamp) {
       console.log(colors.dim(`✓ Backup created (timestamp: ${backupTimestamp})`));
@@ -42,20 +42,20 @@ export async function executeSyncActions(params: ExecuteParams): Promise<void> {
   let failedFiles = 0;
   for (const [fileName, fileActions] of groupActionsByFile(actions)) {
     const filePath = path.join(cwd, fileName);
-    const originalFile = report.files.find(file => file.fileName === fileName);
-    const entries = Array.from(new Map(fileActions.map(a => [a.key, a.value])));
+    const originalFile = report.files.find((file) => file.fileName === fileName);
+    const entries = Array.from(new Map(fileActions.map((a) => [a.key, a.value])));
     const keysToAdd = entries.map(([key]) => key);
     const values = new Map(entries);
     let newContent = EnvFileAnalysis.mergeContent(
-      originalFile?.content || '',
+      originalFile?.content || "",
       keysToAdd,
-      key => values.get(key) || ''
+      (key) => values.get(key) || "",
     );
 
     // Ensure file ends with newline (POSIX standard)
     // Only add newline if there's actual content (avoid creating empty files with just a newline)
-    if (newContent.length > 0 && !newContent.endsWith('\n')) {
-      newContent += '\n';
+    if (newContent.length > 0 && !newContent.endsWith("\n")) {
+      newContent += "\n";
     }
 
     try {
@@ -65,7 +65,7 @@ export async function executeSyncActions(params: ExecuteParams): Promise<void> {
       failedFiles++;
       console.error(
         colors.red(`Failed to update ${fileName}:`),
-        error instanceof Error ? error.message : String(error)
+        error instanceof Error ? error.message : String(error),
       );
     }
   }
@@ -73,17 +73,17 @@ export async function executeSyncActions(params: ExecuteParams): Promise<void> {
   if (failedFiles > 0) {
     throw new Error(`Failed to update ${failedFiles} file(s)`);
   }
-  console.log('');
-  console.log(colors.green('Sync completed successfully!'));
+  console.log("");
+  console.log(colors.green("Sync completed successfully!"));
 }
 
 function printPlan(actions: PendingAction[]): void {
-  console.log('');
-  console.log(colors.bold('Plan:'));
-  actions.forEach(action => {
-    console.log(`  ${colors.green('+')} ${action.file}: ${action.key}=${colors.dim(action.value)}`);
+  console.log("");
+  console.log(colors.bold("Plan:"));
+  actions.forEach((action) => {
+    console.log(`  ${colors.green("+")} ${action.file}: ${action.key}=${colors.dim(action.value)}`);
   });
-  console.log('');
+  console.log("");
 }
 
 function groupActionsByFile(actions: PendingAction[]): Map<string, PendingAction[]> {
@@ -101,7 +101,7 @@ function readMode(filePath: string): number | undefined {
 
   // Security: For new sensitive files (excluding .env.example), enforce 0o600 permissions
   if (!fs.existsSync(filePath)) {
-    const isSensitive = SENSITIVE_FILE_PATTERN.test(fileName) && fileName !== '.env.example';
+    const isSensitive = SENSITIVE_FILE_PATTERN.test(fileName) && fileName !== ".env.example";
     if (isSensitive) {
       return 0o600;
     }

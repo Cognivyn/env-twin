@@ -1,7 +1,7 @@
-import fs from 'fs';
-import path from 'path';
-import { listBackups, BackupInfo } from '../utils/backup.js';
-import { TimestampParser } from './timestamp-parser.js';
+import fs from "fs";
+import path from "path";
+import { listBackups, BackupInfo } from "../utils/backup.js";
+import { TimestampParser } from "./timestamp-parser.js";
 
 /**
  * Backup Discovery Module
@@ -37,7 +37,7 @@ export class BackupDiscovery {
 
   constructor(cwd: string = process.cwd()) {
     this.cwd = path.resolve(cwd);
-    this.backupDir = path.join(this.cwd, '.env-twin');
+    this.backupDir = path.join(this.cwd, ".env-twin");
   }
 
   /**
@@ -54,7 +54,7 @@ export class BackupDiscovery {
     try {
       // Check if backup directory exists
       if (!fs.existsSync(this.backupDir)) {
-        result.errors.push('Backup directory .env-twin/ not found');
+        result.errors.push("Backup directory .env-twin/ not found");
         result.isValid = false;
         return result;
       }
@@ -64,7 +64,7 @@ export class BackupDiscovery {
         fs.accessSync(this.backupDir, fs.constants.R_OK);
       } catch (error) {
         result.errors.push(
-          `Backup directory not readable: ${error instanceof Error ? error.message : String(error)}`
+          `Backup directory not readable: ${error instanceof Error ? error.message : String(error)}`,
         );
         result.isValid = false;
         return result;
@@ -74,7 +74,7 @@ export class BackupDiscovery {
       const backups = listBackups(this.cwd);
 
       if (backups.length === 0) {
-        result.warnings.push('No backups found in .env-twin/ directory');
+        result.warnings.push("No backups found in .env-twin/ directory");
         return result;
       }
 
@@ -90,13 +90,13 @@ export class BackupDiscovery {
 
         if (validatedBackup.errors.length > 0) {
           result.warnings.push(
-            `Backup ${backup.timestamp} has issues: ${validatedBackup.errors.join(', ')}`
+            `Backup ${backup.timestamp} has issues: ${validatedBackup.errors.join(", ")}`,
           );
         }
       }
     } catch (error) {
       result.errors.push(
-        `Failed to discover backups: ${error instanceof Error ? error.message : String(error)}`
+        `Failed to discover backups: ${error instanceof Error ? error.message : String(error)}`,
       );
       result.isValid = false;
     }
@@ -109,7 +109,7 @@ export class BackupDiscovery {
    */
   findMostRecentValidBackup(): BackupInfo | null {
     const result = this.discoverAndValidateBackups();
-    const validBackups = result.validatedBackups.filter(b => b.isValid);
+    const validBackups = result.validatedBackups.filter((b) => b.isValid);
 
     if (validBackups.length === 0) {
       return null;
@@ -124,7 +124,7 @@ export class BackupDiscovery {
    */
   getBackupByTimestamp(timestamp: string): ValidatedBackup | null {
     const result = this.discoverAndValidateBackups();
-    const backup = result.validatedBackups.find(b => b.timestamp === timestamp);
+    const backup = result.validatedBackups.find((b) => b.timestamp === timestamp);
     return backup || null;
   }
 
@@ -161,7 +161,7 @@ export class BackupDiscovery {
           fs.accessSync(filePath, fs.constants.R_OK);
         } catch (error) {
           validatedBackup.errors.push(
-            `File ${fileName} is not readable: ${error instanceof Error ? error.message : String(error)}`
+            `File ${fileName} is not readable: ${error instanceof Error ? error.message : String(error)}`,
           );
           validatedBackup.isValid = false;
           continue;
@@ -179,7 +179,7 @@ export class BackupDiscovery {
         }
       } catch (error) {
         validatedBackup.errors.push(
-          `Failed to validate file ${fileName}: ${error instanceof Error ? error.message : String(error)}`
+          `Failed to validate file ${fileName}: ${error instanceof Error ? error.message : String(error)}`,
         );
         validatedBackup.isValid = false;
       }
@@ -209,9 +209,9 @@ export class BackupDiscovery {
   listAvailableTimestamps(): string[] {
     const result = this.discoverAndValidateBackups();
     return result.validatedBackups
-      .filter(b => b.isValid)
+      .filter((b) => b.isValid)
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-      .map(b => b.timestamp);
+      .map((b) => b.timestamp);
   }
 
   /**

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
 // ============================================================================
 // TYPES AND INTERFACES
@@ -31,38 +31,38 @@ interface ParsedArgs {
 }
 
 type FlagKey =
-  | 'SOURCE'
-  | 'DEST'
-  | 'HELP'
-  | 'VERSION'
-  | 'NO_BACKUP'
-  | 'YES'
-  | 'KEEP'
-  | 'LIST'
-  | 'PRESERVE_PERMISSIONS'
-  | 'PRESERVE_TIMESTAMPS'
-  | 'CREATE_ROLLBACK'
-  | 'FORCE'
-  | 'DRY_RUN'
-  | 'VERBOSE'
-  | 'JSON';
+  | "SOURCE"
+  | "DEST"
+  | "HELP"
+  | "VERSION"
+  | "NO_BACKUP"
+  | "YES"
+  | "KEEP"
+  | "LIST"
+  | "PRESERVE_PERMISSIONS"
+  | "PRESERVE_TIMESTAMPS"
+  | "CREATE_ROLLBACK"
+  | "FORCE"
+  | "DRY_RUN"
+  | "VERBOSE"
+  | "JSON";
 
 const CLI_FLAGS: Record<FlagKey, readonly string[]> = {
-  SOURCE: ['--source', '--src'],
-  DEST: ['--dest', '--destination', '--d', '--out', '--target'],
-  HELP: ['--help', '-h'],
-  VERSION: ['--version', '-v'],
-  NO_BACKUP: ['--no-backup'],
-  YES: ['--yes', '-y'],
-  KEEP: ['--keep'],
-  LIST: ['--list'],
-  PRESERVE_PERMISSIONS: ['--preserve-permissions'],
-  PRESERVE_TIMESTAMPS: ['--preserve-timestamps'],
-  CREATE_ROLLBACK: ['--create-rollback', '--rollback'],
-  FORCE: ['--force', '-f'],
-  DRY_RUN: ['--dry-run', '--simulate'],
-  VERBOSE: ['--verbose', '-V'],
-  JSON: ['--json'],
+  SOURCE: ["--source", "--src"],
+  DEST: ["--dest", "--destination", "--d", "--out", "--target"],
+  HELP: ["--help", "-h"],
+  VERSION: ["--version", "-v"],
+  NO_BACKUP: ["--no-backup"],
+  YES: ["--yes", "-y"],
+  KEEP: ["--keep"],
+  LIST: ["--list"],
+  PRESERVE_PERMISSIONS: ["--preserve-permissions"],
+  PRESERVE_TIMESTAMPS: ["--preserve-timestamps"],
+  CREATE_ROLLBACK: ["--create-rollback", "--rollback"],
+  FORCE: ["--force", "-f"],
+  DRY_RUN: ["--dry-run", "--simulate"],
+  VERBOSE: ["--verbose", "-V"],
+  JSON: ["--json"],
 } as const;
 
 // ============================================================================
@@ -79,7 +79,7 @@ function parseArgs(): ParsedArgs {
 
   // Check if first argument is a command (doesn't start with -)
   let startIndex = 0;
-  if (args.length > 0 && !args[0].startsWith('-')) {
+  if (args.length > 0 && !args[0].startsWith("-")) {
     command = args[0];
     startIndex = 1;
   }
@@ -90,7 +90,7 @@ function parseArgs(): ParsedArgs {
 
     switch (true) {
       case CLI_FLAGS.SOURCE.includes(arg):
-        if (!nextArg || nextArg.startsWith('-')) {
+        if (!nextArg || nextArg.startsWith("-")) {
           throw new Error(`Missing value for ${arg} argument`);
         }
         params.source = nextArg;
@@ -98,7 +98,7 @@ function parseArgs(): ParsedArgs {
         break;
 
       case CLI_FLAGS.DEST.includes(arg):
-        if (!nextArg || nextArg.startsWith('-')) {
+        if (!nextArg || nextArg.startsWith("-")) {
           throw new Error(`Missing value for ${arg} argument`);
         }
         params.dest = nextArg;
@@ -122,7 +122,7 @@ function parseArgs(): ParsedArgs {
         break;
 
       case CLI_FLAGS.KEEP.includes(arg):
-        if (!nextArg || nextArg.startsWith('-')) {
+        if (!nextArg || nextArg.startsWith("-")) {
           throw new Error(`Missing value for ${arg} argument`);
         }
         if (!/^\d+$/.test(nextArg)) {
@@ -165,20 +165,20 @@ function parseArgs(): ParsedArgs {
         break;
 
       default:
-        if (arg.startsWith('-')) {
+        if (arg.startsWith("-")) {
           throw new Error(`Unknown option '${arg}'`);
-        } else if (command === 'restore') {
+        } else if (command === "restore") {
           if (!params.timestamp) {
             params.timestamp = arg;
           } else {
             throw new Error(
-              `Unexpected argument '${arg}'. Only one timestamp argument is allowed for 'restore'.`
+              `Unexpected argument '${arg}'. Only one timestamp argument is allowed for 'restore'.`,
             );
           }
         } else {
-          const cmdName = command || 'default';
+          const cmdName = command || "default";
           throw new Error(
-            `Unexpected argument '${arg}'. The '${cmdName}' command does not accept positional arguments.`
+            `Unexpected argument '${arg}'. The '${cmdName}' command does not accept positional arguments.`,
           );
         }
     }
@@ -221,7 +221,7 @@ Examples:
   env-twin restore                    # Automatically restore most recent backup
   env-twin restore 20241125-143022   # Restore specific backup
   env-twin clean-backups --keep 5
-`
+`,
   );
 }
 
@@ -252,7 +252,7 @@ Examples:
   env-twin sync --source .env.example
   env-twin sync --json
   env-twin sync --yes
-`
+`,
   );
 }
 
@@ -297,7 +297,7 @@ Examples:
 
 Advanced Usage:
   env-twin restore --create-rollback --preserve-permissions --verbose
-`
+`,
   );
 }
 
@@ -317,7 +317,7 @@ Examples:
   env-twin clean-backups
   env-twin clean-backups --keep 5
   env-twin clean-backups --keep 5 --yes
-`
+`,
   );
 }
 
@@ -327,11 +327,11 @@ Examples:
 
 function getVersion(): string {
   try {
-    const packagePath = path.resolve(process.cwd(), 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf-8'));
-    return packageJson.version || 'unknown';
+    const packagePath = path.resolve(process.cwd(), "package.json");
+    const packageJson = JSON.parse(fs.readFileSync(packagePath, "utf-8"));
+    return packageJson.version || "unknown";
   } catch (error) {
-    return '1.0.0';
+    return "1.0.0";
   }
 }
 
@@ -340,8 +340,8 @@ function getVersion(): string {
 // ============================================================================
 
 function runDefaultCommand(options: CliOptions): void {
-  const envPath: string = path.resolve(process.cwd(), options.source || '.env');
-  const examplePath: string = path.resolve(process.cwd(), options.dest || '.env.example');
+  const envPath: string = path.resolve(process.cwd(), options.source || ".env");
+  const examplePath: string = path.resolve(process.cwd(), options.dest || ".env.example");
 
   // Check if source file exists
   if (!fs.existsSync(envPath)) {
@@ -354,7 +354,7 @@ function runDefaultCommand(options: CliOptions): void {
   // Read source file
   let envContent: string;
   try {
-    envContent = fs.readFileSync(envPath, 'utf-8');
+    envContent = fs.readFileSync(envPath, "utf-8");
   } catch (error) {
     console.error(`Error: Failed to read '${envPath}'`);
     console.error(error instanceof Error ? error.message : String(error));
@@ -363,19 +363,19 @@ function runDefaultCommand(options: CliOptions): void {
 
   // Process content
   const exampleContent: string = envContent
-    .split('\n')
+    .split("\n")
     .map((line: string): string => {
-      if (line.trim() === '' || line.trim().startsWith('#')) {
+      if (line.trim() === "" || line.trim().startsWith("#")) {
         return line;
       }
-      const [key] = line.split('=');
+      const [key] = line.split("=");
       if (!key) return line;
 
       // Convert key to lowercase and replace underscores
-      const inputValue = `input_${key.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`;
+      const inputValue = `input_${key.toLowerCase().replace(/[^a-z0-9]+/g, "_")}`;
       return `${key}="${inputValue}"`;
     })
-    .join('\n');
+    .join("\n");
 
   // Create directory if it doesn't exist
   const destDir = path.dirname(examplePath);
@@ -387,9 +387,9 @@ function runDefaultCommand(options: CliOptions): void {
     // Write to destination file
     fs.writeFileSync(examplePath, exampleContent);
     console.log(
-      `Success: Generated '${path.basename(examplePath)}' from '${path.basename(envPath)}'`
+      `Success: Generated '${path.basename(examplePath)}' from '${path.basename(envPath)}'`,
     );
-    console.log('Note: All environment variable values have been removed for security.');
+    console.log("Note: All environment variable values have been removed for security.");
   } catch (error) {
     console.error(`Error: Failed to write to '${examplePath}'`);
     console.error(error instanceof Error ? error.message : String(error));
@@ -407,11 +407,11 @@ try {
 
   // Handle --help flag
   if (options.help) {
-    if (command === 'sync') {
+    if (command === "sync") {
       printSyncUsage();
-    } else if (command === 'restore') {
+    } else if (command === "restore") {
       printRestoreUsage();
-    } else if (command === 'clean-backups') {
+    } else if (command === "clean-backups") {
       printCleanBackupsUsage();
     } else {
       printUsage();
@@ -426,18 +426,18 @@ try {
   }
 
   // Dispatch to appropriate command
-  if (command === 'sync') {
+  if (command === "sync") {
     // Import and run sync command
-    const { runSync } = await import('./commands/sync.js');
+    const { runSync } = await import("./commands/sync.js");
     await runSync({
       noBackup: options.noBackup,
       yes: options.yes,
       json: options.json,
       source: options.source,
     });
-  } else if (command === 'restore') {
+  } else if (command === "restore") {
     // Import and run enhanced restore command
-    const { runEnhancedRestore } = await import('./commands/restore.js');
+    const { runEnhancedRestore } = await import("./commands/restore.js");
     await runEnhancedRestore({
       timestamp: options.timestamp,
       yes: options.yes,
@@ -449,16 +449,16 @@ try {
       dryRun: options.dryRun,
       verbose: options.verbose,
     });
-  } else if (command === 'clean-backups') {
+  } else if (command === "clean-backups") {
     // Import and run clean-backups command
-    const { runCleanBackups } = await import('./commands/clean-backups.js');
+    const { runCleanBackups } = await import("./commands/clean-backups.js");
     await runCleanBackups({
       keep: options.keep,
       yes: options.yes,
     });
   } else if (!command) {
     // Show usage if no arguments provided and no default files exist
-    if (!options.source && !options.dest && !fs.existsSync('.env')) {
+    if (!options.source && !options.dest && !fs.existsSync(".env")) {
       printUsage();
       process.exit(0);
     }
@@ -471,7 +471,7 @@ try {
     process.exit(1);
   }
 } catch (error) {
-  console.error('An unexpected error occurred:');
+  console.error("An unexpected error occurred:");
   console.error(error instanceof Error ? error.message : String(error));
   process.exit(1);
 }

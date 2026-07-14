@@ -53,7 +53,7 @@ export class TimestampParser {
     // Basic format validation
     if (!this.TIMESTAMP_FORMAT.test(timestamp)) {
       result.errors.push(
-        `Invalid timestamp format: ${timestamp}. Expected format: YYYYMMDD-HHMMSS`
+        `Invalid timestamp format: ${timestamp}. Expected format: YYYYMMDD-HHMMSS`,
       );
       return result;
     }
@@ -83,7 +83,7 @@ export class TimestampParser {
         day,
         hours,
         minutes,
-        seconds
+        seconds,
       );
       if (componentErrors.length > 0) {
         result.errors.push(...componentErrors);
@@ -117,7 +117,7 @@ export class TimestampParser {
       result.isValid = true;
     } catch (error) {
       result.errors.push(
-        `Failed to parse timestamp: ${error instanceof Error ? error.message : String(error)}`
+        `Failed to parse timestamp: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
 
@@ -133,7 +133,7 @@ export class TimestampParser {
     day: number,
     hours: number,
     minutes: number,
-    seconds: number
+    seconds: number,
   ): string[] {
     const errors: string[] = [];
 
@@ -175,11 +175,11 @@ export class TimestampParser {
    */
   static generateTimestamp(date: Date = new Date()): string {
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
 
     return `${year}${month}${day}-${hours}${minutes}${seconds}`;
   }
@@ -194,29 +194,29 @@ export class TimestampParser {
       return `Invalid timestamp: ${timestamp}`;
     }
 
-    const { includeSeconds = true, use24Hour = true, locale = 'en-US', timeZone = 'UTC' } = options;
+    const { includeSeconds = true, use24Hour = true, locale = "en-US", timeZone = "UTC" } = options;
 
     try {
       const date = parsed.date;
 
       // Format date part
       const datePart = date.toLocaleDateString(locale, {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
         timeZone,
       });
 
       // Format time part
       const timeOptions: Intl.DateTimeFormatOptions = {
-        hour: '2-digit',
-        minute: '2-digit',
+        hour: "2-digit",
+        minute: "2-digit",
         timeZone,
         hour12: !use24Hour,
       };
 
       if (includeSeconds) {
-        timeOptions.second = '2-digit';
+        timeOptions.second = "2-digit";
       }
 
       const timePart = date.toLocaleTimeString(locale, timeOptions);
@@ -272,7 +272,7 @@ export class TimestampParser {
     const parsed2 = this.parseTimestamp(timestamp2);
 
     if (!parsed1.isValid || !parsed2.isValid) {
-      throw new Error('Cannot compare invalid timestamps');
+      throw new Error("Cannot compare invalid timestamps");
     }
 
     return parsed1.date.getTime() - parsed2.date.getTime();
@@ -300,8 +300,8 @@ export class TimestampParser {
 
     if (invalidTimestamps.length > 0) {
       const errorMessages = invalidTimestamps
-        .map(item => `  "${item.timestamp}": ${item.errors.join(', ')}`)
-        .join('\n');
+        .map((item) => `  "${item.timestamp}": ${item.errors.join(", ")}`)
+        .join("\n");
 
       throw new Error(`Invalid timestamps found in array:\n${errorMessages}`);
     }
@@ -351,7 +351,7 @@ export class TimestampParser {
   static isTimestampInRange(
     timestamp: string,
     startDate?: Date,
-    endDate: Date = new Date()
+    endDate: Date = new Date(),
   ): boolean {
     const parsed = this.parseTimestamp(timestamp);
 

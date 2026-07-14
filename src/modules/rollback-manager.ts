@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
 /**
  * Rollback Management Module
@@ -17,7 +17,7 @@ export interface RollbackSnapshot {
   cwd: string;
 }
 
-export type PartialStats = Pick<fs.Stats, 'mtime' | 'mtimeMs'>;
+export type PartialStats = Pick<fs.Stats, "mtime" | "mtimeMs">;
 
 export interface RollbackFile {
   fileName: string;
@@ -53,7 +53,7 @@ export class RollbackManager {
 
   constructor(cwd: string = process.cwd(), maxSnapshots: number = 10) {
     this.cwd = path.resolve(cwd);
-    this.rollbackDir = path.join(this.cwd, '.env-twin', 'rollbacks');
+    this.rollbackDir = path.join(this.cwd, ".env-twin", "rollbacks");
     this.maxSnapshots = maxSnapshots;
   }
 
@@ -64,7 +64,7 @@ export class RollbackManager {
   private isPathSafe(fileName: string): boolean {
     const targetPath = path.resolve(this.cwd, fileName);
     const relative = path.relative(this.cwd, targetPath);
-    return !relative.startsWith('..') && !path.isAbsolute(relative);
+    return !relative.startsWith("..") && !path.isAbsolute(relative);
   }
 
   /**
@@ -103,7 +103,7 @@ export class RollbackManager {
 
         // Process each file
         const processFile = (fileName: string): Promise<RollbackFile> => {
-          return new Promise(resolveFile => {
+          return new Promise((resolveFile) => {
             // Security check: Prevent path traversal
             if (!this.isPathSafe(fileName)) {
               // We return a "non-existent" file for unsafe paths to skip them safely
@@ -138,14 +138,14 @@ export class RollbackManager {
               rollbackFile.size = stats.size;
               rollbackFile.stats = stats;
 
-              if (includePermissions && process.platform !== 'win32') {
+              if (includePermissions && process.platform !== "win32") {
                 rollbackFile.permissions = stats.mode;
               }
 
               // Read file content if requested and file is small enough
               if (includeContent && stats.size <= maxSize) {
                 try {
-                  rollbackFile.content = fs.readFileSync(filePath, 'utf-8');
+                  rollbackFile.content = fs.readFileSync(filePath, "utf-8");
                 } catch (error) {
                   // Continue without content if read fails
                 }
@@ -160,7 +160,7 @@ export class RollbackManager {
 
         // Process all files
         Promise.all(files.map(processFile))
-          .then(processedFiles => {
+          .then((processedFiles) => {
             snapshot.files = processedFiles;
 
             // Save file contents to snapshot directory
@@ -171,17 +171,17 @@ export class RollbackManager {
                 if (!fs.existsSync(contentDir)) {
                   fs.mkdirSync(contentDir, { recursive: true, mode: 0o700 });
                 }
-                fs.writeFileSync(contentPath, file.content, { encoding: 'utf-8', mode: 0o600 });
+                fs.writeFileSync(contentPath, file.content, { encoding: "utf-8", mode: 0o600 });
               }
             }
 
             // Save snapshot metadata
-            const metadataPath = path.join(snapshotDir, 'metadata.json');
+            const metadataPath = path.join(snapshotDir, "metadata.json");
             const metadata = {
               id: snapshot.id,
               timestamp: snapshot.timestamp,
               createdAt: snapshot.createdAt.toISOString(),
-              files: snapshot.files.map(f => ({
+              files: snapshot.files.map((f) => ({
                 fileName: f.fileName,
                 exists: f.exists,
                 size: f.size,
@@ -194,7 +194,7 @@ export class RollbackManager {
             };
 
             fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2), {
-              encoding: 'utf-8',
+              encoding: "utf-8",
               mode: 0o600,
             });
 
@@ -225,7 +225,7 @@ export class RollbackManager {
       }
 
       // Load snapshot metadata
-      const metadataPath = path.join(snapshotDir, 'metadata.json');
+      const metadataPath = path.join(snapshotDir, "metadata.json");
       if (!fs.existsSync(metadataPath)) {
         return {
           success: false,
@@ -233,7 +233,7 @@ export class RollbackManager {
         };
       }
 
-      const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf-8'));
+      const metadata = JSON.parse(fs.readFileSync(metadataPath, "utf-8"));
       const snapshot: RollbackSnapshot = {
         id: metadata.id,
         timestamp: metadata.timestamp,
@@ -260,7 +260,7 @@ export class RollbackManager {
             // Restore file from snapshot content
             const contentPath = path.join(snapshotDir, fileInfo.fileName);
             if (fs.existsSync(contentPath)) {
-              const content = fs.readFileSync(contentPath, 'utf-8');
+              const content = fs.readFileSync(contentPath, "utf-8");
 
               // Ensure directory exists
               const dir = path.dirname(filePath);
@@ -272,10 +272,10 @@ export class RollbackManager {
               if (fs.existsSync(filePath) && fs.lstatSync(filePath).isSymbolicLink()) {
                 fs.unlinkSync(filePath);
               }
-              fs.writeFileSync(filePath, content, 'utf-8');
+              fs.writeFileSync(filePath, content, "utf-8");
 
               // Restore permissions if available
-              if (fileInfo.permissions && process.platform !== 'win32') {
+              if (fileInfo.permissions && process.platform !== "win32") {
                 try {
                   fs.chmodSync(filePath, fileInfo.permissions);
                 } catch (error) {
@@ -329,11 +329,11 @@ export class RollbackManager {
       for (const entry of entries) {
         if (entry.isDirectory()) {
           const snapshotId = entry.name;
-          const metadataPath = path.join(this.rollbackDir, snapshotId, 'metadata.json');
+          const metadataPath = path.join(this.rollbackDir, snapshotId, "metadata.json");
 
           if (fs.existsSync(metadataPath)) {
             try {
-              const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf-8'));
+              const metadata = JSON.parse(fs.readFileSync(metadataPath, "utf-8"));
               snapshots.push({
                 id: metadata.id,
                 timestamp: metadata.timestamp,
@@ -361,13 +361,13 @@ export class RollbackManager {
   getSnapshot(snapshotId: string): RollbackSnapshot | null {
     try {
       const snapshotDir = path.join(this.rollbackDir, snapshotId);
-      const metadataPath = path.join(snapshotDir, 'metadata.json');
+      const metadataPath = path.join(snapshotDir, "metadata.json");
 
       if (!fs.existsSync(metadataPath)) {
         return null;
       }
 
-      const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf-8'));
+      const metadata = JSON.parse(fs.readFileSync(metadataPath, "utf-8"));
 
       return {
         id: metadata.id,
@@ -524,9 +524,9 @@ export class RollbackManager {
 
               if (snapshotMtime instanceof Date) {
                 snapshotMtimeMs = snapshotMtime.getTime();
-              } else if (typeof snapshotMtime === 'string') {
+              } else if (typeof snapshotMtime === "string") {
                 snapshotMtimeMs = new Date(snapshotMtime).getTime();
-              } else if (typeof snapshotMtime === 'number') {
+              } else if (typeof snapshotMtime === "number") {
                 snapshotMtimeMs = snapshotMtime;
               }
 
@@ -613,7 +613,7 @@ export class RollbackUtils {
    */
   static createTempRollbackFile(originalPath: string, content: string): string {
     const tempPath = `${originalPath}.rollback.${Date.now()}`;
-    fs.writeFileSync(tempPath, content, { encoding: 'utf-8', mode: 0o600 });
+    fs.writeFileSync(tempPath, content, { encoding: "utf-8", mode: 0o600 });
     return tempPath;
   }
 
@@ -623,7 +623,7 @@ export class RollbackUtils {
   static atomicFileReplace(
     originalPath: string,
     newContent: string,
-    backupContent?: string
+    backupContent?: string,
   ): { success: boolean; rollbackPath?: string } {
     try {
       let rollbackPath: string | undefined;
@@ -632,12 +632,12 @@ export class RollbackUtils {
       if (backupContent) {
         rollbackPath = this.createTempRollbackFile(originalPath, backupContent);
       } else if (fs.existsSync(originalPath)) {
-        const originalContent = fs.readFileSync(originalPath, 'utf-8');
+        const originalContent = fs.readFileSync(originalPath, "utf-8");
         rollbackPath = this.createTempRollbackFile(originalPath, originalContent);
       }
 
       // Write new content
-      fs.writeFileSync(originalPath, newContent, 'utf-8');
+      fs.writeFileSync(originalPath, newContent, "utf-8");
 
       return { success: true, rollbackPath };
     } catch (error) {
@@ -651,8 +651,8 @@ export class RollbackUtils {
   static rollbackAtomicOperation(originalPath: string, rollbackPath?: string): boolean {
     try {
       if (rollbackPath && fs.existsSync(rollbackPath)) {
-        const content = fs.readFileSync(rollbackPath, 'utf-8');
-        fs.writeFileSync(originalPath, content, 'utf-8');
+        const content = fs.readFileSync(rollbackPath, "utf-8");
+        fs.writeFileSync(originalPath, content, "utf-8");
         fs.unlinkSync(rollbackPath);
         return true;
       }
