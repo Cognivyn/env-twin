@@ -45,4 +45,22 @@ describe("FileRestorer Security", () => {
 
     expect(exists).toBe(false);
   });
+
+  it('should not restore through a target symlink', async () => {
+    if (process.platform === 'win32') return;
+    const restorer = new FileRestorer(tmpDir);
+    const timestamp = '20230101-120000';
+    const outsidePath = path.join(tmpDir, '..', 'restore-outside.txt');
+    const targetPath = path.join(tmpDir, '.env');
+    fs.writeFileSync(outsidePath, 'original');
+    fs.writeFileSync(path.join(tmpDir, '.env-twin', `.env.${timestamp}`), 'replacement');
+    fs.symlinkSync(outsidePath, targetPath);
+
+    const result = await restorer.restoreFiles({ timestamp, files: ['.env'], createdAt: new Date() });
+
+    expect(result.success).toBe(true);
+    expect(fs.readFileSync(outsidePath, 'utf-8')).toBe('original');
+    expect(fs.readFileSync(targetPath, 'utf-8')).toBe('replacement');
+    fs.rmSync(outsidePath, { force: true });
+  });
 });

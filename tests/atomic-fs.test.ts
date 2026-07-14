@@ -71,5 +71,16 @@ describe("Atomic File System Utils", () => {
         writeAtomic(filePath, "content");
       }).toThrow();
     });
+
+    it('should refuse to overwrite a symbolic link', () => {
+      if (process.platform === 'win32') return;
+      const targetPath = path.join(TEST_DIR, 'target.txt');
+      const outsidePath = path.join(TEST_DIR, 'outside.txt');
+      fs.writeFileSync(outsidePath, 'original');
+      fs.symlinkSync(outsidePath, targetPath);
+
+      expect(() => writeAtomic(targetPath, 'replacement')).toThrow(/symbolic link/);
+      expect(fs.readFileSync(outsidePath, 'utf-8')).toBe('original');
+    });
   });
 });

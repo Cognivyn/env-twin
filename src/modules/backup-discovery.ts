@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { listBackups, BackupInfo } from "../utils/backup.js";
+import { TimestampParser } from "./timestamp-parser.js";
 
 /**
  * Backup Discovery Module
@@ -172,7 +173,7 @@ export class BackupDiscovery {
         }
 
         // Validate timestamp format
-        if (!this.isValidTimestampFormat(backup.timestamp)) {
+        if (!TimestampParser.parseTimestamp(backup.timestamp).isValid) {
           validatedBackup.errors.push(`Invalid timestamp format: ${backup.timestamp}`);
           validatedBackup.isValid = false;
         }
@@ -190,11 +191,6 @@ export class BackupDiscovery {
   /**
    * Check if timestamp follows the expected format (YYYYMMDD-HHMMSS)
    */
-  private isValidTimestampFormat(timestamp: string): boolean {
-    const timestampRegex = /^\d{8}-\d{6}$/;
-    return timestampRegex.test(timestamp);
-  }
-
   /**
    * Check if backup directory is accessible for writing (needed for operations)
    */

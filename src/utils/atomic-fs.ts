@@ -24,6 +24,9 @@ export function writeAtomic(
   let tempCreated = false;
 
   try {
+    if (fs.existsSync(filePath) && fs.lstatSync(filePath).isSymbolicLink()) {
+      throw new Error(`Refusing to overwrite symbolic link: ${filePath}`);
+    }
     if (typeof content === "string") {
       fs.writeFileSync(tempPath, content, { encoding: encoding as BufferEncoding, mode });
     } else {
