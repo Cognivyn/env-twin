@@ -148,6 +148,18 @@ _For more FAQs and detailed command options, see the full README below._
 
 ## Development & Contribution
 
+Run the complete local validation, including the enforced 65% aggregate line coverage gate:
+
+```bash
+bun run check
+```
+
+To run only the coverage suite:
+
+```bash
+bun run coverage
+```
+
 - Written in TypeScript, built with Bun.
 - Thorough test coverage (unit, integration, e2e).
 - Contribution welcome — fork, branch, commit, push, and open a PR.

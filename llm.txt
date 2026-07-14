@@ -94,3 +94,4 @@ MIT License - Open source and free for commercial use.
 
 ## Summary
 env-twin simplifies environment variable management across multiple env files, ensuring consistency, security, and recoverability for Node.js projects. Whether you're managing a simple application or complex microservices architecture, env-twin provides the tools needed to maintain synchronized and secure environment configurations.
+- Coverage: `bun run coverage` (enforces at least 65% aggregate line coverage)

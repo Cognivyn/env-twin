@@ -9,6 +9,7 @@ protecting example files from real secret values.
 - Install: `bun install --frozen-lockfile`
 - Build: `bun run build`
 - Test: `bun test`
+- Coverage: `bun run coverage` (enforces at least 65% aggregate line coverage)
 - CLI help: `bun dist/index.js --help`
 - Version: `bun dist/index.js --version`
 - Package check: `npm pack --dry-run`
