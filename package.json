@@ -19,7 +19,7 @@
                 "env-twin":  "./dist/index.js"
             },
     "bugs":  {
-                 "url":  "https://github.com/Cognivyn/env-twin.issues"
+                 "url":  "https://github.com/Cognivyn/env-twin/issues"
              },
     "description":  "Synchronize your .env.example and .env files effortlessly. env-twin ensures your environment variable templates and actual configurations stay in sync by copying missing keys, highlighting differences, and keeping your project\u0027s environment setup consistent and up to date.",
     "engines":  {
@@ -28,6 +28,7 @@
     "files":  [
                   "dist",
                   "README.md",
+                  "llms.txt",
                   "LICENSE"
               ],
     "homepage":  "https://github.com/Cognivyn/env-twin#readme",
@@ -44,6 +45,7 @@
     "scripts":  {
                     "test":  "bun test",
                     "build":  "tsc",
+                    "check":  "bun run build && bun test && npm pack --dry-run",
                     "start":  "bun dist/index.js",
                     "lint:format":  "prettier --write .",
                     "changeset":  "changeset",

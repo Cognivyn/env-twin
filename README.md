@@ -4,7 +4,7 @@
 
 **env-twin** is the ultimate CLI tool to keep your environment variable configurations perfectly synchronized across all `.env*` files in your Node.js projects. Designed to unify environment variable keys, securely sanitize sensitive data in example files, and maintain consistency throughout your development lifecycle, env-twin enhances your workflow with robust features and easy integration.
 
-[![Build and Test](https://github.com/atssj/env-twin/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/atssj/env-twin/actions/workflows/test.yml)
+[![Build and Test](https://github.com/Cognivyn/env-twin/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Cognivyn/env-twin/actions/workflows/test.yml)
 
 ## Why Use env-twin?
 
@@ -20,7 +20,7 @@
 
 ## Installation
 
-Install `env-twin` as a development dependency with your favorite package manager:
+Install `env-twin` as a development dependency:
 
 <details>
 <summary>Bun</summary>
@@ -74,6 +74,12 @@ Or customize source and destination paths:
 npx env-twin --source .env.development --dest .env.dev.example
 ```
 
+For CI or agent automation, use non-interactive mode and request machine-readable output:
+
+```bash
+npx env-twin sync --yes --json
+```
+
 ### Available Commands
 
 - **sync** – Synchronize environment variable keys across all `.env*` files with backup
@@ -99,7 +105,7 @@ _For full command options and detailed usage, see the "Command Line Options" and
 - **Rollback Support:** Automatic rollbacks in case of failed restore operations prevent data loss.
 - **Cross-Platform Compatibility:** Runs smoothly on all major OS including Windows, macOS, and Linux.
 - **CI/CD Friendly:** Designed to integrate seamlessly into automated workflows and pipelines.
-- **Lightweight & Dependency-Free:** Uses only built-in Node.js modules with zero external dependencies for blazing performance.
+- **Lightweight:** The published package has no runtime dependencies and uses built-in Node.js modules.
 
 ## How It Works
 
@@ -155,4 +161,3 @@ Please refer to the original README content provided above for comprehensive com
 ---
 
 Optimize your Node.js environment configuration management with **env-twin** — the smart, reliable, and secure way to handle `.env` files.
-
